@@ -11,4 +11,3 @@ Back up the control-plane database, deployment configuration, encryption materia
 Restore into an isolated environment, verify users and configuration, inspect historical evidence, and run a non-production workflow. Record recovery time and any manual steps.
 
 Workspace storage is disposable execution state and should not be the only copy of required evidence.
-

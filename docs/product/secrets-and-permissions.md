@@ -15,4 +15,3 @@ BranchRunner workflows store references rather than plaintext credentials. Worke
 
 ## Rotation
 Rotate the value in its owning secret system. Audit which workflows reference the secret before deletion to avoid unexplained run failures.
-

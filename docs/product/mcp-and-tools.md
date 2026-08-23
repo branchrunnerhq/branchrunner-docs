@@ -12,4 +12,3 @@ Mark destructive or externally visible calls as approval-required. A denied call
 
 ## Network access
 Begin with required package registries, Git remotes, providers, and internal services. Log denials so policy can be refined from observed needs.
-

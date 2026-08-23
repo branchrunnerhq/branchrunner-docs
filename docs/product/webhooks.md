@@ -11,4 +11,3 @@ The public webhook contract is being finalized. Event names and payloads are not
 Published webhooks will use signed requests, unique event identifiers, bounded retries, and documented ordering behavior. Receivers should be idempotent and return success only after durable acceptance.
 
 Expected event families include task changes, run transitions, attention requests, validation results, and delivery outcomes.
-

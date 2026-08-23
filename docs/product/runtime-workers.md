@@ -15,4 +15,3 @@ A worker is ready only when its container runtime, workspace storage, network po
 - Separate pools when repositories require different network or trust boundaries.
 - Send worker logs to your normal operations system.
 - Drain a worker before maintenance so active work remains attributable.
-

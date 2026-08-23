@@ -23,4 +23,3 @@ runtime worker ready
 5. Inspect evidence before approving delivery.
 
 Next, read [workspace environments](/docs/workspace-environments) and [validation and approvals](/docs/validation-and-approvals).
-

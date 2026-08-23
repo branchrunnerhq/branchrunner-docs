@@ -16,4 +16,3 @@ A workflow states which roles participate, what tools they can use, which checks
 6. Set time, token, and cost limits with named owners.
 
 Browse complete examples in [use cases](/use-cases).
-

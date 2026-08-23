@@ -12,4 +12,3 @@ Store provider credentials as secret references. Values are injected only for au
 
 ## Review independence
 An independent review role should not inherit the implementing session's hidden context. It evaluates the diff and evidence against the stated requirements.
-

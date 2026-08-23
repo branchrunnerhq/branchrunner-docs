@@ -15,4 +15,3 @@ Read the changelog, back up the database and configuration, and verify that work
 5. Run a known workflow and inspect its evidence.
 
 Breaking releases include explicit migration notes in the [changelog](/changelog).
-

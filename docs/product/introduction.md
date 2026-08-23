@@ -18,4 +18,3 @@ It does not replace your Git host, CI system, model provider, or engineering jud
 
 ## Choose a path
 Install a local deployment with the [quickstart](/docs/quickstart), understand [tasks and runs](/docs/tasks-and-runs), or read [contributing](/docs/contributing) before fixing an issue.
-

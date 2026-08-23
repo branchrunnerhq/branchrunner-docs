@@ -12,4 +12,3 @@ A run is one execution attempt. It records workspace identity, role steps, tool 
 
 ## Retry without erasing history
 Start a new run after a failed or rejected attempt. Preserve the prior run so reviewers can compare what changed and why the next attempt exists.
-

@@ -12,4 +12,3 @@ Run tests, type checks, linters, security tools, builds, and preview smoke tests
 
 ## Approval records
 An approval records who decided, what transition was authorized, what evidence was visible, and when it occurred. Delivery should remain a separate decision from implementation completion.
-

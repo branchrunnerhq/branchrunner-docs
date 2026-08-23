@@ -13,4 +13,3 @@ Read the run transition, worker logs, failed command, and reference identifier b
 - **Provider rejected:** verify the secret reference, provider quota, and role mapping.
 - **Validation failed:** reproduce the exact command inside the preserved workspace.
 - **Delivery failed:** verify Git permissions and branch policy; the workspace and evidence should remain available.
-

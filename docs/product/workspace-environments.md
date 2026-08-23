@@ -12,4 +12,3 @@ Define setup commands, required services, health checks, exposed preview ports, 
 
 ## Cleanup and evidence
 Workspace deletion is separate from evidence retention. Export required logs and test results before cleanup, and choose retention according to your deployment policy.
-
