@@ -7,8 +7,8 @@ order: 20
 ## Before you start
 The initial release is the self-hosted product for Ubuntu 24.04 and 26.04 LTS
 on amd64 or arm64. More platforms are planned. Cloud and the VS Code extension
-are outside this release. Source and release artifacts will be published when
-ready; release validation is still in progress.
+are outside this release. Version 1.0.0 is a release candidate: its source and
+release artifacts will be published together once release acceptance passes.
 
 You operate the installation yourself. BranchRunner does not provide support or an
 SLA, backups, retention services, or deletion services for self-hosted installations.
@@ -22,10 +22,13 @@ You need:
 - an open SSH session to the server while the installer runs;
 - credentials for at least one supported agent provider, for later runs.
 
-The installer installs Docker, PostgreSQL, nginx, certificate renewal and
-firewall rules itself. It builds the BranchRunner images on your server; no
-BranchRunner container image will be published to a public registry before a
-stable version.
+The installer detects the Ubuntu release and the amd64 or arm64 architecture
+and stops on an unknown platform. Its Ubuntu 22.04 and Debian paths are
+compatibility code, not supported configurations. It installs Docker,
+PostgreSQL, nginx, certificate renewal and firewall rules itself. It builds the
+BranchRunner images on your server and pulls only upstream base images such as
+Node.js, Ubuntu and PostgreSQL. No BranchRunner container image will be
+published to a public registry before a stable version.
 
 ## Start the deployment
 Use the versioned one-line command and checksum published with the release on

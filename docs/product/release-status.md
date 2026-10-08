@@ -7,9 +7,11 @@ order: 15
 
 ## Initial release scope
 
-The initial offering is the source-available Community edition, operated on your
-own infrastructure. It targets Ubuntu 24.04 LTS and 26.04 LTS, each on amd64 and
-arm64, with Codex/OpenAI and Claude Code/Anthropic. Each agent has an API-key
+The initial offering is the source-available Community edition, version 1.0.0,
+operated on your own infrastructure. Version 1.0.0 is a release candidate: its
+source is prepared, and its release acceptance has not passed yet. It targets
+Ubuntu 24.04 LTS and 26.04 LTS, each on amd64 and arm64, with Codex/OpenAI and
+Claude Code/Anthropic. Each agent has an API-key
 and a subscription configuration, so the release covers 16 configurations. Each
 one needs its own release acceptance, and none has passed it yet. Other coding
 agents, platforms, Cloud, Enterprise services and the VS Code extension are
@@ -20,20 +22,24 @@ outside this initial offering.
 The source implements the following. None of it is a release claim until live
 acceptance passes.
 
-- A single-host installer for the control panel. It sets up HTTPS, the API,
-  the web UI and PostgreSQL, then runs browser owner setup with password and
-  TOTP sign-in.
-- Built-in signing and handover custody, created by default. No external Vault
-  is required; Vault stays an optional integration you select explicitly.
+- A single-host installer for the control panel. It detects the Ubuntu
+  release and the amd64 or arm64 architecture, builds the BranchRunner images
+  on the host, and sets up HTTPS, the API, the web UI and PostgreSQL. It then
+  runs browser owner setup with password and TOTP sign-in.
+- Built-in signing, handover and retention custody, created by the installer.
+  No external Vault is required; Vault stays an optional integration you
+  select explicitly.
   Signing stays inactive until the installation owner approves the tenant
   signing policy.
 - Remote worker enrollment. You publish the worker channel to one source
   range, run the worker installer with the server address, and enter a
   single-use token at a hidden prompt. An administrator then admits the worker
   explicitly. See [runtime workers](/docs/runtime-workers).
-- Codex API keys for OpenAI, OpenAI-compatible endpoints (for example
-  DeepSeek) and Azure OpenAI. Through the API, a run can select one exact key
-  revision. See
+- Five provider connections: a Codex subscription login; Codex API keys for
+  OpenAI, for OpenAI-compatible endpoints (for example DeepSeek) and for Azure
+  OpenAI; a Claude Code API key for Anthropic; and a Claude subscription
+  account signed in through the official Claude Code CLI. A direct Codex run
+  can be pinned to one exact API-key revision. See
   [agent providers](/docs/agent-providers).
 - The path from repository or issue to agent, validation and repair,
   independent review, human approval and a draft pull request. BranchRunner
@@ -49,13 +55,16 @@ acceptance passes.
   protected Claude execution on the host; like every configuration, it still
   needs live acceptance.
 - **No public container images before a stable version.** The installer builds
-  its images on your host. Agent execution is disabled by default
-  (`BR_EXECUTION_ADAPTER=none`). Turning it on is still a release-operator step.
+  the BranchRunner images on your host; it pulls only upstream base images such
+  as Node.js, Ubuntu and PostgreSQL from their public registries. Agent
+  execution is off after installation (`BR_EXECUTION_ADAPTER=none`, and no
+  protected Codex or Claude execution selected). The installation owner turns
+  it on explicitly.
 - **Supported hosts** are Ubuntu 24.04 and 26.04 LTS. The installer's
   Ubuntu 22.04 and Debian paths are not supported configurations.
-- **Version and licence dates are provisional.** The release version and its
-  licence Change Date are set once the first public release date is known. See
-  [licensing](/docs/licensing).
+- **The licence Change Date is provisional.** The licence files name version
+  1.0.0. Its Change Date is set to three years after 1.0.0's first public
+  release date when that date is known. See [licensing](/docs/licensing).
 
 ## Execution acceptance
 

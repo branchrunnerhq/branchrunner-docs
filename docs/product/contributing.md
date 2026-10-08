@@ -10,13 +10,18 @@ The official public repository URL is deployment-configured. When it is availabl
 ## Before you contribute code
 BranchRunner is source-available, not open source. The product is licensed under the Business Source License 1.1, which converts to GPL-3.0-or-later on each version's Change Date; the contracts and schema package is Apache-2.0 so that building a client never inherits the BSL.
 
-The contribution policy requires the Contributor Licence Agreement. The product's
-`CLA.md` version 1.0 states it is in force from 2026-09-02 and records pending
-counsel review; release review has not resolved that status against the requirement
-for counsel-approved intake. Confirm the applicable version and intake status
-with the maintainers before submitting a contribution. Existing acceptance
-records keep the terms accepted at the time. You do not need to publish a personal email address
-to contribute — a GitHub `noreply` identity is fine.
+**External contributions are not accepted yet.** The licensor, Savelkouls
+Ventures, LLC, does not accept pull requests or patches from outside contributors
+until counsel has reviewed the Contributor Licence Agreement. External pull
+requests are not reviewed or merged in the meantime. The opening of intake will
+be announced in the product's `CONTRIBUTING.md`.
+
+Once intake opens, contributions require the product's `CLA.md`. Version 1.1 names
+Savelkouls Ventures, LLC as the party that receives contribution licences. Its
+relicensing, moral-rights and governing-law sections are still with counsel, and
+a new version will be published before intake opens if the review changes the
+terms. You will not need to publish a personal email address to contribute — a
+GitHub `noreply` identity is fine.
 
 See [licensing](/docs/licensing) for package exceptions and commercial enquiries.
 
@@ -25,6 +30,8 @@ Contributions written with a coding agent are expressly permitted and need no di
 Security findings do not belong in an issue or a pull request. Email `security@branchrunner.com`, the contact in [security.txt](https://branchrunner.com/.well-known/security.txt). `SECURITY.md` in the product repository explains scope and disclosure.
 
 ## Fix an issue
+Once contribution intake opens:
+
 1. Read the issue and confirm its acceptance criteria.
 2. Find the closest existing implementation and tests.
 3. Make one focused change on a branch.

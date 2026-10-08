@@ -20,12 +20,16 @@ configured worker before starting a run. See [release status](/docs/release-stat
 ## Supported connections
 - **Codex with an API key** can target OpenAI, an OpenAI-compatible Responses
   endpoint (for example DeepSeek) or Azure OpenAI. Each key revision records
-  its service, endpoint and exact model or deployment. Through the API, a
-  direct run can select one exact revision, which is frozen into the run; the
-  UI has no control for that yet. The target check contacts
-  the endpoint and reports whether Responses access is verified, expired,
-  refused or failed.
-- **Codex with a subscription login** uses a managed, encrypted login.
+  its service, endpoint and exact model or deployment. When you start a
+  direct Codex run from a task, you can pin it to one exact revision, which is
+  frozen into the run; the API accepts the same selection. Only a current
+  revision with a fresh, successful Responses check can be chosen. The target
+  check contacts the endpoint and reports whether Responses access is verified,
+  expired, refused or failed.
+- **Codex with a subscription login** signs in with a Codex device code under
+  Integrations. BranchRunner keeps the login encrypted and runs Codex with it
+  in protected containers once the installation owner turns on protected Codex
+  execution.
 - **Claude Code with an API key** uses the Anthropic Messages API.
 - **Claude Code with a subscription login** signs in through the official
   Claude Code CLI. Under Integrations, open the Claude sign-in link, approve
@@ -35,7 +39,7 @@ configured worker before starting a run. See [release status](/docs/release-stat
   describes. Usage draws from your Claude plan's limits. The installation owner
   must first turn on protected Claude execution on the host.
 
-All four connections still need live acceptance.
+All of these connections, including each API target, still need live acceptance.
 
 ## Review independence
 An independent review role should not inherit the implementing session's hidden context. It evaluates the diff and evidence against the stated requirements.

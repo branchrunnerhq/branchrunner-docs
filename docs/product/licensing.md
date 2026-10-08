@@ -27,16 +27,34 @@ grant rights to the BranchRunner name, logo, or wordmark.
 
 The release's `LICENSING.md`, package LICENSE files, and `THIRD_PARTY_NOTICES.md`
 define the exact distribution. This page is a summary, not an additional grant.
-Public pre.21/pre.22 artifacts are pre-releases; full release acceptance remains
-open. Each keeps its original first-public date and conversion clock. The
-current source files name version 0.1.0 and Change Date 2029-10-02. Both are
-provisional until the licensor confirms the first public release version and
-date. Use the exact versioned artifact's files rather than treating this page as
-a replacement license. See [release status](/docs/release-status).
+Use the exact versioned artifact's files rather than treating this page as a
+replacement license.
 
-The CLA file states version 1.0 is in force from 2026-09-02 and also records
-pending counsel review. Contribution intake status and trademark clearance
-remain under review; this summary supplies neither approval nor new terms.
+## Version and Change Date
+
+The first public source release is **version 1.0.0**, and the BSL LICENSE files
+name that version as the Licensed Work. 1.0.0 is a release candidate until its
+release acceptance passes; see [release status](/docs/release-status).
+
+The Change Date currently written in those files, 2029-10-02, is a provisional
+placeholder. When 1.0.0 is first publicly released, its Change Date is set to
+exactly three years after that release date. The earlier `0.1.0-pre.21` and
+`0.1.0-pre.22` pre-release artifacts are different versions: they keep their
+own published parameters and original first-public dates.
+
+The licensor keeps the current Additional Use Grant wording. Counsel review of
+that wording is planned. Each released version is governed by the grant in its
+own LICENSE files.
+
+## Contributions and trademarks
+
+The product's `CLA.md` is version 1.1. It names Savelkouls Ventures, LLC as the
+party that receives contribution licences. External contributions are not
+accepted until counsel has reviewed the CLA; see [contributing](/docs/contributing).
+Security reports are welcome now.
+
+Trademark clearance for the BranchRunner name follows later. The brand-use
+policy in `LICENSING.md` is an in-house draft, not a trademark permission.
 
 ## Commercial enquiries
 
