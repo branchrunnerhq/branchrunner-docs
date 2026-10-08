@@ -12,3 +12,11 @@ Run tests, type checks, linters, security tools, builds, and preview smoke tests
 
 ## Approval records
 An approval records who decided, what transition was authorized, what evidence was visible, and when it occurred. Delivery should remain a separate decision from implementation completion.
+
+## Delivery and cancellation
+Delivery creates a draft pull request after human approval. BranchRunner has no
+merge or deploy capability. If you cancel a publication, BranchRunner stops
+further repository-host effects. The task branch and draft pull request stay
+unchanged. The completion review page shows what was left there, with warnings
+if the branch moved or the pull request left draft state, and the steps to
+remove them yourself.

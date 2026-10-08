@@ -4,6 +4,12 @@ description: Understand what BranchRunner controls, what runs on workers, and wh
 group: Start here
 order: 10
 ---
+## Release scope
+
+This documentation previews the initial self-hosted Community release. Read
+[release status](/docs/release-status) for the supported configuration targets,
+pending acceptance, and operator responsibilities.
+
 ## What BranchRunner is
 BranchRunner is a development control plane for turning specified work into reviewed changes. It coordinates tasks, isolated workspaces, agent roles, validation, evidence, and explicit approvals.
 
