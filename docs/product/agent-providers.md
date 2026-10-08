@@ -27,9 +27,13 @@ configured worker before starting a run. See [release status](/docs/release-stat
   refused or failed.
 - **Codex with a subscription login** uses a managed, encrypted login.
 - **Claude Code with an API key** uses the Anthropic Messages API.
-- **Claude Code with a subscription login** is on hold pending an owner
-  decision: either an official CLI-managed persistent home directory or written
-  authorization from Anthropic.
+- **Claude Code with a subscription login** signs in through the official
+  Claude Code CLI. Under Integrations, open the Claude sign-in link, approve
+  access, then paste the code Claude shows. BranchRunner runs that official CLI
+  with your login inside its protected containers, as Anthropic's
+  [Agent SDK and Claude plan article](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)
+  describes. Usage draws from your Claude plan's limits. The installation owner
+  must first turn on protected Claude execution on the host.
 
 All four connections still need live acceptance.
 

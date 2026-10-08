@@ -44,9 +44,10 @@ acceptance passes.
 
 - **Live acceptance is pending** for every configuration, and also for remote
   workers, OpenAI-compatible and Azure targets, and publication cancellation.
-- **Claude Code subscription is on hold.** It waits on an owner decision:
-  either an official CLI-managed persistent home directory or written
-  authorization from Anthropic. Claude Code with an API key is unaffected.
+- **Claude Code subscription is off until the owner selects it.** Accounts
+  sign in through the official Claude Code CLI. The installation owner turns on
+  protected Claude execution on the host; like every configuration, it still
+  needs live acceptance.
 - **No public container images before a stable version.** The installer builds
   its images on your host. Agent execution is disabled by default
   (`BR_EXECUTION_ADAPTER=none`). Turning it on is still a release-operator step.
