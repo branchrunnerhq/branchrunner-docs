@@ -58,16 +58,20 @@ from source and takes longer.
 Coding agents and validation run on a runtime worker. The worker installs from
 the same published release as the server. It needs no Git checkout.
 
+- **On the same server**, after owner setup, run the same-host command: a
+  checksum-pinned `install.sh worker --source-sha256 <archive>` one-liner
+  without `--server`. The server installer prints it under "Next steps", and
+  **Runtime workers > Add a worker** shows it under **On this server's own
+  host**. The worker joins over the loopback channel. The worker installer
+  stops and restarts the control panel containers that share its service
+  account, so the control panel is briefly unavailable.
 - **On another host**, first rerun the server installer once with
   `--remote-workers <CIDR>[,<CIDR>...]` after owner setup. The installer then
-  prints the worker command, a checksum-pinned `install.sh worker` one-liner,
-  and **Runtime workers > Add a worker** shows the same command. Run it on the
-  worker host. See [runtime workers](/docs/runtime-workers).
-- **On the same server**, include the server's own address in the
-  `--remote-workers` ranges and run the same command there. The worker
-  installer stops and restarts the control panel containers that share its
-  service account, so the control panel is briefly unavailable. See
-  [runtime workers](/docs/runtime-workers).
+  prints the remote worker command, which adds `--server`, and **Runtime
+  workers > Add a worker** shows it under **On another host**. Run it on the
+  worker host.
+
+See [runtime workers](/docs/runtime-workers).
 
 The worker installer runs fast installation checks, not the product test suite.
 `--verify` adds the full suite, which takes about two hours and is meant for

@@ -30,17 +30,23 @@ of the control plane. Docker Desktop cannot be used.
 ## Install the worker
 
 The worker installs exactly the source the control plane runs. On a server
-installed from a published release, use the published worker command. It is the
-release's `install.sh` in worker mode, with the installer and the source archive
-pinned by SHA-256:
+installed from a published release, use one of the two published worker
+commands. Both run the release's `install.sh` in worker mode, with the installer
+and the source archive pinned by SHA-256. They differ only in `--server`:
 
 ```bash
+# On the control-plane host itself:
+wget --https-only -qO /tmp/branchrunner-install https://branchrunner.com/releases/1.0.0/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --source-sha256 <source archive SHA-256>
+
+# On another host:
 wget --https-only -qO /tmp/branchrunner-install https://branchrunner.com/releases/1.0.0/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --server https://branchrunner.example.com --source-sha256 <source archive SHA-256>
 ```
 
-Do not type this command yourself. The server installer prints the exact command
-for your release, and **Runtime workers > Add a worker** shows the same command.
-It needs no Git checkout. It downloads the release's `SHA256SUMS`, source-commit
+Do not type these commands yourself. The server installer prints the exact
+commands for your release: the same-host command under "Next steps", and the
+remote command with `--remote-workers`. **Runtime workers > Add a worker** shows
+both, under **On this server's own host** and **On another host**. Neither
+needs a Git checkout. It downloads the release's `SHA256SUMS`, source-commit
 record, `RELEASE.json` and source archive, and checks them against each other and
 against the release that the server advertises. It then rebuilds the published
 commit from the archive and runs that release's worker installer. It refuses a
@@ -63,11 +69,17 @@ enrolls again.
 
 ## Add a worker on the same server
 
-The published worker command reads the server's onboarding profile through
-the worker channel, which is published only to the `--remote-workers` ranges.
-On the same server, include the server's own address in those ranges and run
-the printed command there, or follow the manual configuration in the product's
-worker installation runbook (`docs/runbooks/worker-installation.md`).
+Complete the browser owner setup first, then run the same-host command on the
+control-plane host. It needs no `--remote-workers`, no published onboarding
+profile and no firewall rule. Without `--server`, the installer takes the
+expected release from the control plane on this host and checks that it agrees
+with the installation's state. It joins over the loopback worker channel
+(`127.0.0.1:5181`) and reads the installation, Worker CA and owner organization
+from the local control plane. It refuses a control plane without an owner, a
+loopback channel that does not verify, and a local release record that
+disagrees with the installation or the published release. On a control plane
+installed from a Git checkout, run `sudo ./scripts/install-worker.sh --local`
+from a clean checkout of the same commit instead.
 
 The worker shares a service account with the control panel. The installer
 therefore stops those containers, installs the worker, and starts them again
