@@ -73,3 +73,7 @@ git push origin v1.4.0
 ```
 
 The website configuration must then include that tag in `NEXT_PUBLIC_DOCS_REFS`. Do not move or replace an existing release tag; create a new patch tag for corrections.
+
+## License of contributions
+
+By submitting a contribution, you agree that it is licensed under the same [CC BY 4.0 license](LICENSE) as the rest of this documentation.

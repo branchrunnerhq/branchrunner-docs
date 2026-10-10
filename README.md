@@ -34,3 +34,9 @@ A release tag must contain the complete `docs/product` directory. Tagged pages a
 ## Contributing
 
 See [CONTRIBUTE.md](CONTRIBUTE.md) for writing conventions, validation requirements, and the pull-request checklist.
+
+## License
+
+The documentation in this repository is licensed under the [Creative Commons Attribution 4.0 International License](LICENSE) (CC BY 4.0). You may share and adapt it, including commercially, provided you give appropriate credit to BranchRunner, link to the license, and indicate whether you made changes.
+
+The BranchRunner software is licensed separately; see the licensing information in the product repository.
