@@ -2,7 +2,7 @@
 title: Licensing
 description: Understand Community usage rights, package exceptions, and commercial licensing enquiries.
 group: Contribute
-order: 150
+order: 155
 ---
 
 ## Community software
@@ -14,9 +14,10 @@ subject to the exact released LICENSE. Hosted or managed third-party services,
 white-labelling, competing-product embedding, and proprietary redistribution
 require commercial licensing under that grant.
 
-Each version changes to GPL-3.0-or-later on its recorded Change Date. The policy
-sets that date three years after the version's first public release. Before that
-date, the BSL components are source-available rather than OSI-approved open source.
+Each version changes to GPL-3.0-or-later on the Change Date recorded in its own
+LICENSE files. Before that date, the BSL components are source-available rather
+than OSI-approved open source. The `@branchrunner/contracts` package is
+Apache-2.0 open source.
 
 ## Package and asset boundaries
 
@@ -36,9 +37,12 @@ The first public source release is **version 1.0.0**, and the BSL LICENSE files
 name that version as the Licensed Work. 1.0.0 is a release candidate until its
 release acceptance passes; see [release status](/docs/release-status).
 
-The Change Date written in those files is 2029-10-01. The earlier `0.1.0-pre.21` and
-`0.1.0-pre.22` pre-release artifacts are different versions: they keep their
-own published parameters and original first-public dates.
+The Change Date written in those files is **2029-10-01**. The licensor fixed that
+date for 1.0.0 on 2026-10-10. The BSL's four-year maximum from a version's first
+public distribution still applies. Later versions receive their own Change Date
+when they are released. The earlier `0.1.0-pre.21` and `0.1.0-pre.22`
+pre-release artifacts are different versions: they keep their own published
+parameters and original first-public dates.
 
 The licensor keeps the current Additional Use Grant wording. Counsel review of
 that wording is planned. Each released version is governed by the grant in its
