@@ -25,8 +25,10 @@ Add connections under **Integrations**.
   [Agent SDK and Claude plan article](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)
   describes. Usage draws from your Claude plan's limits. The owner must first
   select protected Claude execution on the server.
-- **Codex with an API key** can target OpenAI, an OpenAI-compatible Responses
-  endpoint (for example DeepSeek) or Azure OpenAI. Each key revision records its
+- **Codex with an API key** can target OpenAI, an OpenAI-compatible endpoint
+  that serves the Responses API, or Azure OpenAI (API version `v1`). Codex
+  0.156.1 supports only the Responses API, so services that offer only Chat
+  Completions (for example DeepSeek) are refused at enrollment. Each key revision records its
   service, endpoint and exact model or deployment. The target check contacts the
   endpoint and reports whether Responses access is verified, expired, refused or
   failed. A direct run can be pinned to one exact revision.
