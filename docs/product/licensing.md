@@ -36,9 +36,7 @@ The first public source release is **version 1.0.0**, and the BSL LICENSE files
 name that version as the Licensed Work. 1.0.0 is a release candidate until its
 release acceptance passes; see [release status](/docs/release-status).
 
-The Change Date currently written in those files, 2029-10-02, is a provisional
-placeholder. When 1.0.0 is first publicly released, its Change Date is set to
-exactly three years after that release date. The earlier `0.1.0-pre.21` and
+The Change Date written in those files is 2029-10-01. The earlier `0.1.0-pre.21` and
 `0.1.0-pre.22` pre-release artifacts are different versions: they keep their
 own published parameters and original first-public dates.
 
