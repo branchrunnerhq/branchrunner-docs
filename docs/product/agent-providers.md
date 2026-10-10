@@ -34,9 +34,36 @@ Add connections under **Integrations**.
   failed. A direct run can be pinned to one exact revision.
 - **Claude Code with an API key** uses the Anthropic Messages API.
 
+Up to four runs can use one Codex or Claude subscription connection at the same
+time. Each run gets its own CLI process and home directory, and a concurrent
+session cannot rotate the login: only an exclusive verification refreshes it.
+Live acceptance of concurrent sessions is still pending.
+
 A saved login records authentication state. It does not prove a current
 account entitlement, execution authority on a worker, or a successful agent
 step. The run-start check verifies those before a run starts.
+
+## Remove a saved key or sign-in
+
+A provider administrator with a recent authenticator sign-in can remove a
+credential under **Integrations**:
+
+- **Remove saved key** on an API-key connection disconnects the connection,
+  revokes every credential grant that names the key and closes their open
+  sessions, which also cuts off a provider call in flight. The provider service
+  then deletes the stored key and signs a removal statement. Saved keys are
+  sealed at rest, each encrypted with AES-256-GCM under its own data key.
+- **Remove sign-in** on a Claude subscription connection archives the
+  connection, so no run can use the sign-in and a running Claude stage stops at
+  its next check. Custody then deletes the sealed sign-in and keeps a tombstone.
+  To sign in again, add a new Claude connection.
+
+The removal shows as pending until custody confirms the deletion; a pending
+credential is already revoked and unusable. Removal does not revoke the key or
+end the session at the provider, so also revoke the key in the provider's
+console or sign out in your Claude account. To keep using an API-key connection,
+save a new key on it. See
+[data retention, deletion and custody](/docs/data-retention-deletion-custody).
 
 ## Agent profiles and connection priority
 
@@ -98,8 +125,22 @@ charges only, not subscription fees.
 ## Review independence
 
 An independent reviewer does not inherit the implementing session's context.
-It evaluates the diff and evidence against the stated requirements. By default,
-review runs through the installation's oldest OpenAI API-key connection, and
-every OpenAI model counts as one model family. To have high-risk work written by
-an OpenAI model reviewed independently, choose a review policy with a reviewer
-from another provider under **Runtime workers**.
+It evaluates the diff and evidence against the stated requirements.
+
+The reviewer can be a signed-in Codex or Claude subscription or an API-key
+connection. A subscription reviewer runs both review passes through the
+protected subscription runtime, each pass in its own isolated session, and
+needs no API key. The installer's default review policy prefers a signed-in
+subscription that runs the model of a published agent profile, and otherwise
+uses the installation's oldest Codex API-key connection. Owner choices under
+**Runtime workers** take precedence.
+
+A model family is the reviewer's upstream provider: every OpenAI model, through
+Codex, is one family, and every Anthropic model, through Claude, is another. A
+Review stage for high-risk work is refused before any pass runs when the
+reviewer shares the model family with an implementer, and for critical-risk work
+when it shares the provider. The refusal reads "High-risk changes need a
+reviewer from a different provider or model than the implementer." Medium- and
+low-risk work is reviewed. An installation with connections from only one
+provider therefore cannot complete review of high- or critical-risk work; add a
+reviewer from the other provider for that.

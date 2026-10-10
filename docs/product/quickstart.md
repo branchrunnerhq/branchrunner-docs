@@ -55,29 +55,26 @@ from source and takes longer.
 
 ## Install a worker
 
-Coding agents and validation run on a runtime worker. The worker installer runs
-from a clean Git checkout of the server's release commit, which the server
-records as `workerSourceCommit` in `/etc/branchrunner/quickstart/state.json`.
-
-- **On the same server**, run the worker installer from that checkout. It stops
-  and restarts the control panel containers that share its service account, so
-  the control panel is briefly unavailable:
-
-  ```bash
-  sudo ./scripts/install-worker.sh --repo-dir /srv/branchrunner-worker/app \
-    --server https://branchrunner.example.com
-  ```
+Coding agents and validation run on a runtime worker. The worker installs from
+the same published release as the server. It needs no Git checkout.
 
 - **On another host**, first rerun the server installer once with
-  `--remote-workers <CIDR>` after owner setup, then run the worker installer on
-  that host. See [runtime workers](/docs/runtime-workers).
+  `--remote-workers <CIDR>[,<CIDR>...]` after owner setup. The installer then
+  prints the worker command, a checksum-pinned `install.sh worker` one-liner,
+  and **Runtime workers > Add a worker** shows the same command. Run it on the
+  worker host. See [runtime workers](/docs/runtime-workers).
+- **On the same server**, include the server's own address in the
+  `--remote-workers` ranges and run the same command there. The worker
+  installer stops and restarts the control panel containers that share its
+  service account, so the control panel is briefly unavailable. See
+  [runtime workers](/docs/runtime-workers).
 
 The worker installer runs fast installation checks, not the product test suite.
 `--verify` adds the full suite, which takes about two hours and is meant for
 developers and release candidates. When asked, paste a single-use token from
 **Runtime workers > Add a worker** at the hidden prompt. The worker then shows
-as **Awaiting admission**. Review it and admit it; nothing is scheduled before
-that.
+as **Awaiting admission**. Review the reported host and runtime identity, then
+admit it; nothing is scheduled before that.
 
 ## Select agent execution
 

@@ -33,16 +33,20 @@ guarantee.
   The full product test suite is opt-in (`--verify`), never part of a customer
   installation. See the [quickstart](/docs/quickstart).
 - **Single-host and remote workers.** A worker can share the server or enroll
-  from another host through a mutual-TLS channel with a single-use token. An
-  administrator admits every worker explicitly. See
-  [runtime workers](/docs/runtime-workers).
+  from another host through a mutual-TLS channel with a single-use token. The
+  worker installs from the same published release archive as the server, with
+  a checksum-pinned one-line command, and needs no Git checkout. An owner or
+  administrator admits every worker explicitly, together with the runtime
+  identity it reports. See [runtime workers](/docs/runtime-workers).
 - **GitHub App setup in the app.** **Integrations > Connect GitHub** creates the
   installation's own GitHub App on your account. You choose its repositories on
   GitHub.
 - **Provider connections.** A Codex subscription sign-in and a Claude
   subscription sign-in through the official Claude Code CLI, both run inside
   protected containers; API keys for OpenAI (including OpenAI-compatible
-  endpoints and Azure OpenAI) and for Anthropic. See
+  endpoints and Azure OpenAI) and for Anthropic. Up to four runs can share one
+  subscription connection. Saved API keys are sealed at rest, and a saved key
+  or Claude sign-in can be removed from **Integrations**. See
   [agent providers](/docs/agent-providers).
 - **Connection priority, plan usage and failover.** An agent profile orders up
   to six connections of one agent by drag and drop. Each stage uses the first
@@ -57,21 +61,23 @@ guarantee.
 - **Validation.** BranchRunner detects a repository's npm `build`, `typecheck`,
   `lint` and `test` scripts and runs them offline in a hardened validation
   container. See [validation and approvals](/docs/validation-and-approvals).
-- **Independent review and signed evidence.** A separate reviewer evaluates the
-  change against the requirements, and the installation signs completion,
-  evidence and review records with its own keys.
+- **Independent review and signed evidence.** A separate reviewer, a
+  subscription or an API-key connection, evaluates the change against the
+  requirements, and the installation signs completion, evidence and review
+  records with its own keys.
 - **Draft pull requests through the GitHub App.** After a person approves the
   completion review, BranchRunner opens a draft pull request. It has no merge or
   deploy capability.
 - **Built-in custody and retention.** Signing, handover and retention keys are
   created on your server; no external Vault is required. Automatic deletion of
-  expired run artifacts that are not on hold is on by default.
+  expired run artifacts that are not on hold is on by default. See
+  [data retention, deletion and custody](/docs/data-retention-deletion-custody).
 
 ## Known limitations
 
-- **Release acceptance is pending** for all 16 configurations, for remote
-  workers, for OpenAI-compatible and Azure targets, and for publication
-  cancellation.
+- **Release acceptance is pending** for all 16 configurations, for workers on a
+  separate host, for OpenAI-compatible and Azure targets, for concurrent
+  subscription sessions and for publication cancellation.
 - **The complete run to a draft pull request is still being proven live.** Each
   part of the path is implemented, but an end-to-end run from task to draft pull
   request on an installed host has not been completed yet.
@@ -88,10 +94,11 @@ guarantee.
 - **Validation supports npm projects only.** It needs a `package-lock.json` and
   does not support npm workspaces. Other repositories get only the baseline
   repository-hygiene check, and completion names the missing evidence.
-- **Independent review uses an OpenAI API-key connection by default.** The
-  default review policy treats every OpenAI model as one model family. For
-  high-risk changes written by an OpenAI model, choose a review policy with a
-  reviewer from another provider.
+- **High-risk review needs another provider.** A model family is the
+  reviewer's upstream provider. A Review stage for high- or critical-risk work
+  is refused when the reviewer shares the implementer's provider, so an
+  installation with connections from only one provider cannot complete review of
+  such work. Medium- and low-risk work is reviewed.
 - **Failover stays within one agent.** A connection list cannot mix Codex and
   Claude connections. A stage switches only at its start or after a failure
   that changed nothing in the workspace.
@@ -101,8 +108,10 @@ guarantee.
   can show "not measured yet".
 - **Agent profiles cannot use skills or MCP servers yet.** A profile that
   selects them cannot run. See [MCP and tools](/docs/mcp-and-tools).
-- **Remote workers need a source checkout.** The worker installer runs from a
-  clean Git checkout of the server's release commit. Publishing the remote
+- **Separate-host workers need three image pins.** Validation, source repair
+  and archive inspection still take their images from server-wide pins. For a
+  worker whose control plane runs elsewhere, the worker installer prints the
+  three values, and the control-plane operator sets them. Publishing the remote
   worker channel needs one server installer rerun after owner setup.
 - **No public container images before a stable version.** The installer builds
   the BranchRunner images on your host and pulls only digest-pinned upstream

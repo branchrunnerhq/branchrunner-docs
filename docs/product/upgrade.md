@@ -18,11 +18,18 @@ Install 1.0.0 on a clean host instead.
 
 1. Take a recovery set and check that it can be read.
 2. Rerun the server installer for the new version. It keeps the installation
-   identity, Worker CA, database volume, passwords and keys, applies the new
-   migrations once, and keeps the previous site serving while images build.
-3. Rerun the worker installer on every worker host. The worker channel refuses a
-   control plane and worker with different protocol versions.
-4. Check **Runtime workers** for activation and signing status.
+   identity, Worker CA, database volume, passwords and keys, and keeps the
+   previous site serving while images build. It applies all new migrations in
+   one transaction: if any of them fails, none is applied, the schema stays
+   unchanged and the previous release keeps serving.
+3. Run the new release's worker command on every worker host. The server
+   installer prints it, and **Runtime workers > Add a worker** shows it. The
+   worker channel refuses a control plane and worker with different protocol
+   versions.
+4. Check **Runtime workers** for activation and signing status. If a worker
+   reports a changed runtime identity, for example after a new image or Docker
+   version, review it and choose **Admit runtime identity**; until then source
+   import and agent runs are refused on that worker.
 5. Run a known workflow and inspect its evidence.
 
 An upgrade re-prepares a protected Codex runtime for the new build and

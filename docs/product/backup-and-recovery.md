@@ -35,6 +35,8 @@ Built-in retention is on by default. It automatically deletes expired run
 artifacts that are not on hold from the local artifact store. It does not erase
 backups, snapshots, database pages or WAL, and it reports backup expiry as
 unavailable. Deleting data from your backups follows your own retention policy.
+See [data retention, deletion and custody](/docs/data-retention-deletion-custody)
+for what BranchRunner deletes, what it keeps and what it does not guarantee.
 
 ## Recovery practice
 

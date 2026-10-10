@@ -7,7 +7,9 @@ order: 70
 ## Credential custody
 
 Provider API keys and subscription logins are held by the installation's
-provider service, encrypted on your server. API-key stages call the provider
+provider service, encrypted on your server. Each saved API key is encrypted with
+AES-256-GCM under its own data key, which is wrapped with the provider service's
+enrollment key, kept apart from the key files. API-key stages call the provider
 through the installation's provider gateway, and subscription logins are used
 only by the official CLIs inside protected containers. GitHub
 installation tokens stay inside the SCM service and are never returned to the
@@ -41,3 +43,8 @@ select explicitly. Include these keys in your backups; see
 Rotate a provider key by adding a new key revision to its connection. Review
 which agent profiles use a connection before archiving it to avoid unexplained
 run failures.
+
+To withdraw a leaked or unwanted credential, use **Remove saved key** or
+**Remove sign-in** under **Integrations**. It revokes the credential first and
+then deletes it from custody. Also revoke the key at the provider. See
+[agent providers](/docs/agent-providers).

@@ -39,8 +39,15 @@ gets only the hygiene check, and completion names every missing evidence class.
 A separate reviewer evaluates the change and its evidence against the stated
 requirements, without the implementing session's context. Each finding offers
 **Accept and repair**, which returns the run to implementation, or **Reject with
-reason**. See [agent providers](/docs/agent-providers) for the default review
-policy.
+reason**.
+
+The reviewer can be a signed-in Codex or Claude subscription or an API-key
+connection. For a subscription reviewer, the review evidence records the
+connection, the model and both reviewer sessions.
+High- and critical-risk work needs a reviewer from a different provider than the
+implementer; otherwise the Review stage is refused before any pass runs. See
+[agent providers](/docs/agent-providers) for the default review policy and the
+independence rules.
 
 ## Signed evidence
 
