@@ -44,7 +44,7 @@ wget --https-only -qO /tmp/branchrunner-install <release URL>/install.sh && echo
 ```
 
 `<release URL>` stands for the release's address, which is published with the
-release; the 1.0.0 release is not published yet. Do not type these commands
+release notes. Do not type these commands
 yourself. On a single server you normally need neither: the server installer
 runs the same-host worker installer itself after owner setup (see
 [Add a worker on the same server](#add-a-worker-on-the-same-server)). The server
@@ -67,11 +67,13 @@ Install its workers from a clean checkout of the same commit, outside
 By default the installer runs fast installation checks: release identity, a
 smoke run of the installed worker and a local host preflight. It builds the
 diff-analysis, validation, source-repair and archive-inspection images on the
-host, checks each image's exact ID, role and non-root user, and pins that local
-image. Nothing is pulled from a registry. `--verify` adds the full product test
-suite, which takes about two hours and is meant for developers and release
-candidates. A rerun on an enrolled host keeps the same identity and never
-enrolls again.
+host and checks each image's exact ID, role and non-root user. Nothing is
+pulled from a registry. The worker reports those image IDs in its runtime
+identity, which you admit; no image pins are configured on the control plane.
+The installer never runs test suites; `--verify` adds the full host
+verification suite, which takes about two hours and is meant for developers
+and release candidates. A rerun on an enrolled host keeps the same identity
+and never enrolls again.
 
 ## Add a worker on the same server
 
@@ -188,10 +190,20 @@ Admission is checked per capability:
 A rerun from the same sources keeps the same image IDs and therefore the same
 identity.
 
+The worker on the control-plane host is the exception for upgrades whose only
+change is images: when every changed image is one the installers built from the
+release the control plane runs, the new identity is admitted automatically and
+recorded as **BranchRunner (release images)** with an audit event
+(`sudo journalctl -u branchrunner-release-image-admission` shows the outcome).
+Any other change, such as the security profiles, the Docker version or the
+keys, and every change on a worker on a separate host, still needs **Admit
+runtime identity**.
+
 ## Agent stages on another host
 
 In 1.0.0, a worker on another host runs Codex subscription stages, once the
-two owner steps below are done, and API-key stages. Claude subscription stages
+owner has admitted it for subscription execution as described below, and
+API-key stages. Claude subscription stages
 run only on the worker on the control-plane host: run placement skips a worker
 on another host for any run that uses a Claude subscription connection, with
 the reason `claude_remote_execution_unavailable`. If you use a Claude
@@ -202,45 +214,44 @@ subscription, also install a worker on the control-plane host.
 A Codex subscription stage on a worker on another host runs in that host's
 protected launcher. The control plane's custody delivers the session credential
 over the worker channel; sign-in, refresh and exclusive verification stay on
-the control-plane host. After you admit the worker and its runtime identity,
-the owner completes two steps:
+the control-plane host. Nothing is copied between hosts by hand:
 
-1. **On the control-plane host**, admit the host for Codex custody and print
-   the control plane's execution document:
-
-   ```bash
-   sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host admit WORKER_ID HOST_KEY_SHA256 CLI_IMAGE SOURCE_IMAGE
-   sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host document
-   ```
-
-   `WORKER_ID` is the ID the worker installer prints when it enrolls
-   (`Enrolled as …`). `HOST_KEY_SHA256` is the protected host attestation key,
-   and `CLI_IMAGE` and `SOURCE_IMAGE` are the protected Codex CLI and source
-   images. **Runtime workers** shows them in the worker's runtime identity, and
-   the worker installer prints them in its summary: the `protected host key`
-   line, and the second and third values of the `protected Codex` line.
-   Custody refuses to deliver a session to a host that is not admitted or whose
-   signed proof names other images. `document` prints the execution document
-   as a single line.
-
-2. **On the worker host**, select protected Codex for that control plane,
-   passing the line `document` printed as `DOCUMENT`:
+1. **Install the worker.** After enrollment, the worker installer fetches the
+   control plane's execution document over the worker channel and, when the
+   control plane has protected Codex selected, selects remote execution on the
+   worker host itself. The worker opens its tunnels to the control plane within
+   a few seconds. If protected Codex was not selected on the control plane yet,
+   or the host enrolled later with `br-worker-enrol`, select it on the worker
+   host once the control plane is ready:
 
    ```bash
-   sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-protected --control-plane DOCUMENT --worker-id WORKER_ID
+   sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-protected --control-plane
    ```
 
-   The worker opens its tunnels to the control plane within a few seconds.
+2. **Admit the worker and its runtime identity** under **Runtime workers**. The
+   identity names the host attestation key and the protected Codex images.
+3. **Admit for subscription execution.** On the same page, the installation
+   owner, signed in with MFA within the last 15 minutes, chooses **Admit for
+   subscription execution**. Custody then delivers sessions to that host, and
+   refuses any host that is not admitted or whose signed proof names other
+   images. The page shows the outcome: `admitted`, or a reason such as
+   `owner_approval_invalid`, `host_key_changed` or
+   `protected_runtime_not_admitted`.
 
-To withdraw the host, run `codex-remote-host withdraw WORKER_ID` on the
-control-plane host, which stops new sessions, or `none` on the worker host,
-which stops its protected Codex stack and closes the tunnels.
+After an upgrade, admitting the worker's new runtime identity is enough. A new
+owner approval is needed only when the host attestation key changes
+(`host_key_changed`).
+
+To withdraw the host, the owner chooses **Withdraw** under **Runtime workers**,
+or runs `codex-remote-host withdraw WORKER_ID` on the control-plane host; both
+stop new sessions. `none` on the worker host stops its protected Codex stack and
+closes the tunnels.
 
 ## Known limitations
 
 - There is no screen that lists outstanding enrollment tokens; the audit log
   records each issue and revocation.
-- Live acceptance of a worker on a separate host is still pending; see
+- A worker on a separate host is supported but not yet live-verified; see
   [release status](/docs/release-status).
 
 ## Operations

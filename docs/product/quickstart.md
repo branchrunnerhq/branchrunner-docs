@@ -6,10 +6,10 @@ order: 20
 ---
 ## Before you start
 
-BranchRunner 1.0.0 is a release candidate. Its installer, source archive and
-checksums will be published together once release acceptance passes. The only
-installer published today is an earlier pre-release that sets up the control
-panel with agent execution disabled. See [release status](/docs/release-status).
+This page installs BranchRunner 1.0.0. Its installer, source archive and
+checksums are published together with the release notes. See
+[release status](/docs/release-status) for the configurations that were
+verified live.
 
 You operate the installation yourself. BranchRunner provides no support, SLA,
 backup, retention or deletion service for self-hosted installations. You own
@@ -19,7 +19,11 @@ policies.
 You need:
 
 - a clean Ubuntu 24.04 or 26.04 LTS server on amd64 or arm64 with at least 8 GB
-  RAM, 2 CPU cores and 60 GB free disk (the images are built on the server);
+  RAM, 2 CPU cores and 60 GB free disk (the images are built on the server).
+  16 GB RAM and 4 CPU cores are recommended. The installer refuses a smaller
+  host before it installs anything. Below 16 GB it builds the protected agent
+  images two at a time instead of four, and below the recommended size the
+  host may hold only one run at a time;
 - a public DNS name for that server, with TCP 80 and 443 reachable;
 - an open SSH session to the server while the installer runs;
 - a GitHub account or organization that owns the repositories to work on;
@@ -60,9 +64,10 @@ single-server installation needs no second command. The installer waits for
 owner setup and activation, then runs the release's same-host worker installer
 itself (see [Install a worker](#install-a-worker)).
 
-Measured upgrades on the development host took about 2 minutes for the server
-and about 2 minutes for the worker. A first installation also builds every image
-from source and takes longer.
+Installation never runs test suites: the image builds bundle the released code,
+and the host verification suite runs only with `--verify`. Most of a fresh
+installation is spent on the concurrent image builds. The release notes publish
+the measured fresh-installation time and the host size it was measured on.
 
 ## Install a worker
 
@@ -90,47 +95,44 @@ Claude subscription stages run only on the worker on the control-plane host, so
 install that worker as well if you use a Claude subscription. See
 [runtime workers](/docs/runtime-workers).
 
-The worker installer runs fast installation checks, not the product test suite.
-`--verify` adds the full suite, which takes about two hours and is meant for
-developers and release candidates. When asked, paste a single-use token from
+The worker installer runs fast installation checks, never a test suite.
+`--verify` adds the full host verification suite, which takes about two hours
+and is meant for developers and release candidates. When asked, paste a single-use token from
 **Runtime workers > Add a worker** at the hidden prompt. The worker then shows
 as **Awaiting admission**. Review the reported host and runtime identity, then
 admit it; nothing is scheduled before that.
 
-## Select agent execution
+On the control-plane host, an upgrade whose only change is the images built
+from the new release keeps the worker admitted automatically. Any other change
+to the runtime identity, and every change on a worker on another host, needs
+**Admit runtime identity** under **Runtime workers**.
 
-Agent execution stays off after installation. Select the protected runtime for
-the agent you will use, on the server:
+## Agent execution is selected automatically
 
-```bash
-sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-protected
-# or, for a Claude subscription:
-sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh claude-protected
-```
+You select nothing by hand. On the control-plane host, the installation selects
+protected Codex execution once the worker installer has attested the host, and
+protected Claude execution once the worker installer has prepared the Claude
+runtime. Selection succeeds only when the locally built images and the host
+attestation verify. Upgrades keep the selection. A saved login alone does not
+authorize a run.
 
-The selection succeeds only when the locally built images and the host
-attestation verify. After an upgrade, a selected protected Codex runtime is
-selected again automatically once the worker installer has attested the host.
-Protected Claude must be selected again after the worker installer has prepared
-it for the new build.
-
-For protected Codex on a worker on another host, two more owner steps follow
-the worker's admission. On the control-plane host, admit that host for Codex
-custody and print the control plane's execution document:
+To keep agent execution off, record the opt-out on the server. No installer
+run, renewal or upgrade selects a runtime again while the opt-out is recorded:
 
 ```bash
-sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host admit WORKER_ID HOST_KEY_SHA256 CLI_IMAGE SOURCE_IMAGE
-sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host document
+sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh none
 ```
 
-Then, on the worker host, select protected Codex with that document:
+The same command selects a runtime again by hand with `codex-protected` or
+`claude-protected`. API-key connections need no execution selection. The
+direct `codex` and `claude` adapters are retired; the command and the API
+refuse them.
 
-```bash
-sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-protected --control-plane DOCUMENT --worker-id WORKER_ID
-```
-
-[Runtime workers](/docs/runtime-workers#protected-codex-on-another-host)
-explains where each value comes from.
+For protected Codex on a worker on another host, the worker installer selects
+remote execution on that host itself. After you admit the worker and its
+runtime identity, the installation owner chooses **Admit for subscription
+execution** for it under **Runtime workers**. See
+[runtime workers](/docs/runtime-workers#protected-codex-on-another-host).
 
 ## Before your first run
 
@@ -173,20 +175,18 @@ it says so. Steps the page cannot read are marked **Confirm yourself**.
     reviewer** in the run's completion review. The reviewer must not have
     written any of the change. A qualification lasts up to 90 days. This
     happens during the first run, so have the reviewer ready.
-11. **Enforce protected credentials** under **Integrations**. Credential
-    enforcement starts in shadow mode, and API-key model calls are refused
-    until an owner or administrator turns it on. It cannot be turned off.
-12. **Protected execution selected.** Today this is the root command in
-    [Select agent execution](#select-agent-execution):
-    `branchrunner-configure-execution.sh codex-protected` or `claude-protected`.
-    The checklist reads it as done once a subscription connection reports agent
-    execution.
-13. **Publish a workflow.** The starter template contains the six stages: Plan,
+11. **Protected execution selected.** The installation selects it
+    automatically once the worker's host is attested (Codex) or the Claude
+    runtime is prepared (Claude); no root step is needed. The checklist reads
+    it as done once a subscription connection reports agent execution.
+12. **Publish a workflow.** The starter template contains the six stages: Plan,
     Implement, Validate, Independent review, Approval and Handoff.
-14. **Create a task** with numbered requirements, or import a GitHub issue.
+13. **Create a task** with numbered requirements, or import a GitHub issue.
 
-A run that uses an API-key connection also needs a credential approval for
-that run, in the run console. By default one person gives it.
+A fresh installation starts with protected credential enforcement on, so there
+is no enforcement step. A run that uses an API-key connection also needs a
+credential approval for that run, in the run console. By default one person
+gives it.
 
 Then start a run from the task. The run-start check lists anything that still
 blocks it, with the exact reason. Approve the plan, follow the run in its

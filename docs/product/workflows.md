@@ -48,6 +48,6 @@ configurable yet.
 5. Keep approval boundaries for scope, sensitive actions and delivery.
 6. Set time, token and cost limits with named owners.
 
-The complete controlled delivery path is still part of
-[release acceptance](/docs/release-status). Browse examples in
-[use cases](/use-cases).
+[Release status](/docs/release-status) lists the configurations on which the
+complete controlled delivery path was verified live. Browse examples in
+[use cases](https://branchrunner.com/use-cases).

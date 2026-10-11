@@ -15,8 +15,12 @@ only by the official CLIs inside protected containers. GitHub
 installation tokens stay inside the SCM service and are never returned to the
 API, worker, agent, database or logs.
 
-Credential enforcement starts in shadow mode. An owner or administrator can
-switch it to enforcing under **Integrations**. This cannot be switched back.
+A fresh installation starts with protected credential enforcement on, so there
+is no activation step, and it cannot be switched off. An installation upgraded
+from a version before this default stays in shadow mode, where API-key model
+calls are refused, until an owner or administrator turns enforcement on under
+**Integrations → Protected credential enforcement**. This cannot be switched
+back.
 
 ## Built-in key custody
 

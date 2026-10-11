@@ -7,10 +7,9 @@ order: 10
 ## Release scope
 
 This documentation describes BranchRunner Community Edition 1.0.0, the first
-self-hosted release. Version 1.0.0 is a release candidate: it has not passed
-release acceptance and is not published yet. Read
-[release status](/docs/release-status) for what the release includes, its
-known limitations and what is still being proven.
+self-hosted release. Read [release status](/docs/release-status) for what the
+release includes, which configurations were verified live and its known
+limitations.
 
 ## What BranchRunner is
 

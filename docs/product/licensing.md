@@ -34,8 +34,8 @@ replacement license.
 ## Version and Change Date
 
 The first public source release is **version 1.0.0**, and the BSL LICENSE files
-name that version as the Licensed Work. 1.0.0 is a release candidate until its
-release acceptance passes; see [release status](/docs/release-status).
+name that version as the Licensed Work. See
+[release status](/docs/release-status) for what 1.0.0 covers.
 
 The Change Date written in those files is **2029-10-01**. The licensor fixed that
 date for 1.0.0 on 2026-10-10. The BSL's four-year maximum from a version's first

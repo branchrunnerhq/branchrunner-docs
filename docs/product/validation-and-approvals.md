@@ -101,5 +101,5 @@ The task branch and draft pull request stay unchanged. The completion review
 page shows what was left there, with warnings if the branch moved or the pull
 request left draft state, and the steps to remove them yourself.
 
-Release acceptance for the complete path to a draft pull request is still in
-progress; see [release status](/docs/release-status).
+Publication cancellation is supported but not yet live-verified; see
+[release status](/docs/release-status).

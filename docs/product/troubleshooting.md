@@ -34,13 +34,22 @@ before retrying. A retry should not erase the first failure.
 - **Provider unavailable:** the attention queue names the waiting stage and the
   earliest plan reset. Check the connection's plan usage and login under
   **Integrations**, or add another connection to the agent's priority list.
-- **Agent execution refused:** confirm that the owner selected protected Codex
-  or protected Claude execution on the server after the latest upgrade. For
-  protected Codex on a worker on another host, the host also needs its own
-  selection: `codex-remote-host admit` on the control-plane host and
-  `codex-protected --control-plane DOCUMENT --worker-id WORKER_ID` on the
-  worker host. Without both, a Codex subscription run is not placed on that
-  worker, or is refused with `remote_execution_tunnel_unavailable`. See
+- **Agent execution refused:** on the control-plane host, the installation
+  selects `codex-protected` automatically once the worker installer has
+  attested the host, and `claude-protected` once it has prepared the Claude
+  runtime, and upgrades keep both. The worker installer summary prints the
+  outcome, and `/ready` reports the composed selection in its
+  `protected_execution` check. If nothing is selected, check whether an owner
+  recorded the opt-out with `branchrunner-configure-execution.sh none`, which
+  automation never overrides; select the runtime again by hand with
+  `codex-protected` or `claude-protected`, or rerun the worker installer after
+  fixing a refused attestation. API-key connections need no execution
+  selection. The direct `codex` and `claude` adapters are retired and refused
+  with `adapter_retired`. For protected Codex on a worker on another host, the
+  installation owner must also choose **Admit for subscription execution**
+  under **Runtime workers** after admitting its runtime identity. Without it, a
+  Codex subscription run is not placed on that worker, or is refused with
+  `remote_execution_tunnel_unavailable`. See
   [protected Codex on another host](/docs/runtime-workers#protected-codex-on-another-host).
 - **Validation failed:** reproduce the exact command inside the preserved
   workspace. If only the hygiene check ran, the repository has no supported npm

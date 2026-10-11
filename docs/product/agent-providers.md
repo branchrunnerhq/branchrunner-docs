@@ -8,23 +8,25 @@ order: 50
 
 BranchRunner 1.0.0 supports two coding agents: Codex (OpenAI) and Claude Code
 (Anthropic). Other adapters shown in product concepts are outside this release.
-Every connection type below still needs live release acceptance; see
-[release status](/docs/release-status).
+[Release status](/docs/release-status) lists which connection types were
+verified live; the others are supported but not yet live-verified.
 
 ## Connections
 
 Add connections under **Integrations**.
 
 - **Codex with a subscription** signs in with a Codex device code. BranchRunner
-  keeps the login encrypted and runs Codex with it in protected containers once
-  the installation owner has selected protected Codex execution on the server.
+  keeps the login encrypted and runs Codex with it in protected containers. The
+  installation selects protected Codex execution automatically once the worker
+  installer has attested the host.
 - **Claude Code with a subscription** signs in through the official Claude Code
   CLI: open the Claude sign-in link, approve access, then paste the code Claude
   shows. BranchRunner runs that official CLI with your login inside its
   protected containers, as Anthropic's
   [Agent SDK and Claude plan article](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)
-  describes. Usage draws from your Claude plan's limits. The owner must first
-  select protected Claude execution on the server. In 1.0.0, Claude
+  describes. Usage draws from your Claude plan's limits. The installation
+  selects protected Claude execution automatically once the worker installer
+  has prepared the Claude runtime. In 1.0.0, Claude
   subscription stages run only on the worker on the control-plane host, not on
   a worker on another host; see
   [runtime workers](/docs/runtime-workers#agent-stages-on-another-host).
@@ -34,10 +36,16 @@ Add connections under **Integrations**.
   pinned to one exact key revision.
 - **Claude Code with an API key** uses the Anthropic Messages API.
 
+API-key connections run BranchRunner's built-in agent and need no execution
+selection. The direct `codex` and `claude` agent-image adapters are retired and
+refused with `adapter_retired`; subscriptions run only through the protected
+runtimes, and the owner can opt out of those with
+`branchrunner-configure-execution.sh none`.
+
 Up to four runs can use one Codex or Claude subscription connection at the same
 time. Each run gets its own CLI process and home directory, and a concurrent
 session cannot rotate the login: only an exclusive verification refreshes it.
-Live acceptance of concurrent sessions is still pending.
+Concurrent sessions are supported but not yet live-verified.
 
 A saved login records authentication state. It does not prove a current
 account entitlement, execution authority on a worker, or a successful agent
