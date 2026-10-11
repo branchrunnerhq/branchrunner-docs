@@ -25,6 +25,11 @@ endings are shared by every subsystem:
 - `error_class_<Name>` or `unclassified`: no more specific cause is known.
   Contact support with the full line.
 
+An error whose message is itself a short code, such as
+`handover_custody_peer_refused`, is reported as that code rather than as
+`error_class_Error`. A chain is cut at 160 characters, so in a long chain the
+last segment can be cut short. Match it by its beginning.
+
 Source: `server/src/application/boundedFailureReason.ts`,
 `server/src/application/installedAuthorityReason.ts` and
 `packages/worker/src/boundedFailureReason.ts`.
@@ -83,7 +88,8 @@ the `worker` evidence source refused admission with
 | Code at the end | Meaning | What to do |
 | --- | --- | --- |
 | `admission:runtime_identity_not_admitted` | No runtime identity has been admitted for the worker. | Admit the runtime identity under **Runtime workers** after comparing it with what the worker installer printed. |
-| `admission:runtime_identity_changed` | The worker now reports a different runtime identity. | Compare both identities under **Runtime workers**, then admit the new one if you expected the change. |
+| `admission:runtime_identity_changed` | The worker reports a change outside its images, for example another Docker version, security packs or egress path. Every capability on the worker is refused. | Compare both identities under **Runtime workers**, then admit the new one if you expected the change. |
+| `admission:runtime_identity_image_not_admitted`, `admission:runtime_identity_image_changed` | This capability's image became ready after the identity was admitted, or it now reports a different image. Only this capability is refused; the worker's other capabilities keep running. | Admit the reported runtime identity under **Runtime workers**, which names the image awaiting admission. |
 | `admission:runtime_identity_admission_invalid` | The stored admission no longer matches its own digest. | Contact support with the line. |
 | `admission:capability_unavailable` | The worker reports this capability as not ready. | Read the worker's `Phase 6 worker capability` line. |
 | `admission:capability_identity_mismatch` | The worker's runtime, image or profile differs from what its admitted identity requires. | Rerun the worker installer from the control plane's release, then admit the identity if it changed. |
@@ -194,6 +200,57 @@ Source: `server/src/handoverCustody/serviceMain.ts`,
 
 Source: `packages/worker/src/main.ts`, `phase6ProductionComposition.ts`,
 `isolatedArchiveRuntime.ts` and `dockerArchiveBoundaryCanary.ts`.
+
+## Reason families added in October 2026
+
+These families were added on 11 October 2026. Each one is summarised here; send
+the full line to support when the suggested action does not clear it.
+
+- **Per-capability image admission:**
+  `runtime_identity_image_not_admitted` and `runtime_identity_image_changed`
+  refuse one capability, not the whole worker. See
+  [Phase 6 runtime checks](#phase-6-runtime-checks).
+- **Host posture after an upgrade:** an upgrade that installs new AppArmor or
+  seccomp packs holds the worker. It drains, shows as degraded and takes no
+  work, and dependent checks report `worker_not_eligible`. The event
+  `worker.host_facts_rebase_pending` records the hold. Admit the reported
+  runtime identity under **Runtime workers**; the worker returns to service
+  without re-enrollment. If the page says that admission would not clear the
+  drift, for example `host_drift_not_installer_managed` after a kernel or
+  Docker change, the host needs re-enrollment.
+- **Handover custody identity refused:** the handover custody log shows
+  `handover_custody_identity_refused`, and `phase6_publication` reports
+  `registry_unavailable:custody:handover_custody_response_refused`. Custody
+  serves an organization only while at least one of its workers is `active`
+  with a current certificate. Return a drained worker to `active`, admit the
+  identity of a held worker, or re-enroll a worker whose certificate expired or
+  was revoked. The refusal clears on the next request.
+- **Trusted publication SCM causes:** `phase6_publication` reports
+  `scm_operations_not_current:<cause>`. A cause that starts with `peer:` came
+  from the `branchrunner-scm` service; any other cause was found by the API.
+  Connection and deadline causes (`rpc_connection_failed`,
+  `rpc_deadline_exceeded`) mean you should start or restart `branchrunner-scm`
+  and read its log. `peer:scm_operations_not_activated` means that the GitHub
+  App is not registered or has another App ID. Certificate, custody and
+  registration causes mean the control-plane installer should be rerun.
+- **Retention custody:** `phase6_retention` reports
+  `retention_custody:<stage>:<cause>` while the retention custody root is not
+  installed. Destructive retention is withdrawn until it recovers, and the API
+  retries in the background without a restart. Rerun the control-plane
+  installer if the code persists. `provider_change_unapproved` means the
+  configured custody provider differs from the one recorded at first start.
+  Restore the previous provider settings, or approve a deliberate change with
+  `BR_PHASE6_RETENTION_PROVIDER_CHANGE_APPROVAL=<previous>:<next>` in
+  `api.local.env`.
+- **Archive canary report incomplete:** the worker journal shows
+  `archive_boundary_archive_canary_report_incomplete:<received>:<client>:<container>:<class>`.
+  The archive isolation check ended before it reported, so archive inspection
+  stays unavailable (`capability_unavailable`). A container state ending in
+  `_oom` points to memory pressure. Otherwise check the host load and rerun the
+  worker installer, then send the full line to support if it repeats.
+
+Source: the internal readiness runbook, `docs/runbooks/readiness-reasons.md` in
+the product repository.
 
 ## Contacting support
 

@@ -142,22 +142,30 @@ page shows two reports, both measured and signed by the worker:
 
 **Admit worker** admits the host and exactly that runtime identity. Workers with
 different Docker versions or image IDs are each admitted with their own
-identity, and the control plane needs no configuration change for source
-import, agent runs or diff analysis on them.
+identity. Every capability, including validation, source repair and archive
+inspection, uses the images of the worker that runs it, so the control plane
+needs no image configuration for any of them.
 
-If an upgrade changes what a worker reports, for example a new image or another
-Docker version, **Runtime workers** shows that the worker reports a changed
-runtime identity, with both identities side by side. Source import, agent runs
-and the dependent workspace commands are refused on that worker until an owner
-or administrator chooses **Admit runtime identity**. A rerun from the same
-sources keeps the same image IDs and therefore the same identity.
+Admission is checked per capability:
+
+- **Host and runtime fields** (platform, Docker version, security packs,
+  controlled egress and the protected runtime) apply to the whole worker. If an
+  upgrade changes one of them, **Runtime workers** shows that the worker reports
+  a changed runtime identity, with both identities side by side, and every
+  capability on that worker is refused until an owner or administrator chooses
+  **Admit runtime identity**.
+- **Each image** applies only to its own capability: diff analysis, validation,
+  source repair or archive inspection. If one of them becomes ready after
+  admission, or reports a different image, only that capability is refused and
+  **Runtime workers** names the image that awaits admission. The worker's other
+  capabilities keep running. A capability can only ever run the image admitted
+  for it.
+
+A rerun from the same sources keeps the same image IDs and therefore the same
+identity.
 
 ## Known limitations
 
-- Validation, source repair and archive inspection still take their images from
-  server-wide pins. On a single host the worker installer sets them. For a
-  worker whose control plane runs elsewhere, the worker installer prints the
-  three values and the command, and the control-plane operator sets them.
 - There is no screen that lists outstanding enrollment tokens; the audit log
   records each issue and revocation.
 - Live acceptance of a worker on a separate host is still pending; see
