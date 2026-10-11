@@ -17,9 +17,10 @@ A worker needs a current certificate and incarnation, explicit administrative
 admission, an admitted runtime identity, compatible capabilities, eligible
 capacity, and a healthy runtime, storage, network policy and control-plane
 connection. A registered or heartbeating worker can still be ineligible for
-work. Repository source import, runtime image pins and provider execution
-authority are separate prerequisites. The run-start check reports each missing
-item.
+work. Repository source import and provider execution authority are separate
+prerequisites. The images a worker runs come from its admitted runtime
+identity, so the control plane needs no image configuration. The run-start
+check reports each missing item.
 
 ## Host requirements
 

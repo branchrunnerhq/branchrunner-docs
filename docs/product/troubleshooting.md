@@ -35,7 +35,13 @@ before retrying. A retry should not erase the first failure.
   earliest plan reset. Check the connection's plan usage and login under
   **Integrations**, or add another connection to the agent's priority list.
 - **Agent execution refused:** confirm that the owner selected protected Codex
-  or protected Claude execution on the server after the latest upgrade.
+  or protected Claude execution on the server after the latest upgrade. For
+  protected Codex on a worker on another host, the host also needs its own
+  selection: `codex-remote-host admit` on the control-plane host and
+  `codex-protected --control-plane DOCUMENT --worker-id WORKER_ID` on the
+  worker host. Without both, a Codex subscription run is not placed on that
+  worker, or is refused with `remote_execution_tunnel_unavailable`. See
+  [protected Codex on another host](/docs/runtime-workers#protected-codex-on-another-host).
 - **Validation failed:** reproduce the exact command inside the preserved
   workspace. If only the hygiene check ran, the repository has no supported npm
   suite; see [validation and approvals](/docs/validation-and-approvals).
