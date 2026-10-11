@@ -96,11 +96,17 @@ guarantee.
 - **Validation supports npm projects only.** It needs a `package-lock.json` and
   does not support npm workspaces. Other repositories get only the baseline
   repository-hygiene check, and completion names the missing evidence.
-- **High-risk review needs another provider.** A model family is the
-  reviewer's upstream provider. A Review stage for high- or critical-risk work
-  is refused when the reviewer shares the implementer's provider, so an
-  installation with connections from only one provider cannot complete review of
-  such work. Medium- and low-risk work is reviewed.
+- **Every run needs two providers and a human reviewer.** Every change is
+  reviewed as Critical in 1.0.0, so the reviewer must come from a different
+  provider and model family than every Implement step, and a qualified person
+  who did not write the change must complete a human technical review. An
+  installation with connections from only one provider cannot complete review.
+  See
+  [review requirements for every run](/docs/validation-and-approvals#review-requirements-for-every-run).
+- **Previews are not available in 1.0.0.** BranchRunner does not serve a
+  preview of a run's running application in this release. The run console and
+  workspace detail show previews as unavailable, and no preview link can be
+  opened or shared.
 - **Failover stays within one agent.** A connection list cannot mix Codex and
   Claude connections. A stage switches only at its start or after a failure
   that changed nothing in the workspace.

@@ -107,11 +107,11 @@ a record rather than delete it.
 
 | Action | What it does | What it does not do |
 | ------ | ------------ | ------------------- |
-| Sign out, or sign out everywhere | Revokes the browser session, or all of your sessions and, when the optional preview edge is configured, the preview identities you started. | It does not delete session records. |
-| Cancel a run | Revokes the run's credentials, sessions, egress exceptions and, when the optional preview edge is configured, its preview links. It fences the run's lease and queues workspace destruction, unless you chose to keep the workspace. | It does not delete the run, its conversation, logs or evidence. It does not touch GitHub. |
+| Sign out, or sign out everywhere | Revokes the browser session, or all of your sessions. | It does not delete session records. |
+| Cancel a run | Revokes the run's credentials, sessions, egress exceptions. It fences the run's lease and queues workspace destruction, unless you chose to keep the workspace. | It does not delete the run, its conversation, logs or evidence. It does not touch GitHub. |
 | Destroy a workspace | The worker removes the workspace's owned containers, volumes, networks and agent worktrees, then checks that they are gone. Anything it cannot prove it owns is quarantined, not deleted. | It leaves the repository clone and the source cache on the worker host. |
 | Cancel a publication | Stops publication and records the cancellation. | The branch and draft pull request stay on GitHub. Close or delete them there yourself. |
-| Revoke an approval, egress exception, preview link (when the optional preview edge is configured), credential grant, service identity or enrollment token | Marks it revoked and stops it working. | It deletes nothing. |
+| Revoke an approval, egress exception, credential grant, service identity or enrollment token | Marks it revoked and stops it working. | It deletes nothing. |
 | Decommission a worker | Revokes its certificates, fences its live leases and ends the credential sessions those leases authorized, in one transaction. The identity can never register again. | It changes nothing on the worker host. |
 | Remove a provider connection | Archives an unused connection. | It refuses a connection that has credentials, custody or history. |
 | Sign out of Codex | Asks the Codex CLI to sign out and removes the local Codex home. | It cannot confirm that OpenAI ended the session. |
@@ -119,6 +119,9 @@ a record rather than delete it.
 | Remove a saved API key | Disconnects the connection, revokes the key's credential grants and closes their sessions at once. The provider service then deletes the stored key and confirms it with a signed statement. | It keeps the enrollment receipt and audit history. The file is unlinked, not overwritten; it held only ciphertext. It cannot revoke the key at the provider. |
 | Remove a Claude sign-in | Archives the connection, so no run can use the sign-in, and a running Claude stage stops at its next check. Custody then deletes the sealed sign-in, keeps a tombstone and confirms it with a signed statement. | It cannot end the session at Anthropic. |
 | Uninstall the GitHub App at GitHub | The next grant check (normally within four minutes) marks the repository grants revoked and pauses affected runs. | It deletes nothing in BranchRunner or at GitHub. |
+
+Previews are not available in 1.0.0, so a 1.0.0 installation has no preview
+links or preview sessions to revoke.
 
 Removing a saved API key or a Claude sign-in requires a provider administrator
 with a recent authenticator sign-in. The removal shows as pending until custody

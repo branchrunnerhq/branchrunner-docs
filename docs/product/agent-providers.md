@@ -211,7 +211,11 @@ Codex, is one family, and every Anthropic model, through Claude, is another. A
 Review stage for high-risk work is refused before any pass runs when the
 reviewer shares the model family with an implementer, and for critical-risk work
 when it shares the provider. The refusal reads "High-risk changes need a
-reviewer from a different provider or model than the implementer." Medium- and
-low-risk work is reviewed. An installation with connections from only one
-provider therefore cannot complete review of high- or critical-risk work; add a
-reviewer from the other provider for that.
+reviewer from a different provider or model than the implementer."
+
+In 1.0.0 every change is reviewed as Critical, because no change is
+semantically classified yet. Every run therefore needs a reviewer from a
+different provider and model family than every Implement step, plus a human
+technical review, and an installation with connections from only one provider
+cannot complete review. Connect both a Codex and a Claude connection. See
+[review requirements for every run](/docs/validation-and-approvals#review-requirements-for-every-run).

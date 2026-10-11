@@ -43,11 +43,29 @@ reason**.
 
 The reviewer can be a signed-in Codex or Claude subscription or an API-key
 connection. For a subscription reviewer, the review evidence records the
-connection, the model and both reviewer sessions.
-High- and critical-risk work needs a reviewer from a different provider than the
-implementer; otherwise the Review stage is refused before any pass runs. See
+connection, the model and both reviewer sessions. See
 [agent providers](/docs/agent-providers) for the default review policy and the
 independence rules.
+
+## Review requirements for every run
+
+Every run in BranchRunner 1.0.0 needs two reviews before its change can be
+published:
+
+- **A reviewer agent from a second provider.** Every change is reviewed as
+  Critical risk until it has been semantically classified, and 1.0.0 does not
+  classify changes, so every change is Critical. A Critical review needs a
+  reviewer from a different provider and model family than every Implement step:
+  if the implementer runs on Codex (OpenAI), the reviewer runs on Claude
+  (Anthropic), or the other way round. Task readiness and run start refuse a
+  workflow whose reviewer does not meet this, and an installation with
+  connections from only one provider can never pass Review.
+- **A human technical review.** A qualified person who did not contribute to
+  the change reviews it in the completion review before publication. An owner or
+  administrator qualifies reviewers.
+
+The workflow editor's Review stage and the task's run preflight state this
+requirement before you publish a workflow or start a run.
 
 ## Signed evidence
 

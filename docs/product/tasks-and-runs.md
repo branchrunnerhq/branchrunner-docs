@@ -17,7 +17,14 @@ A run is one execution attempt through the six workflow stages. It records
 workspace identity, stage attempts and the provider connection each stage used,
 tool decisions, validation, review findings, cost and delivery status. The run
 console shows live progress and links the draft pull request once it exists.
-Its controls depend on the stage:
+
+Before a run starts, the task's run preflight shows the readiness checks and
+the review requirement: every 1.0.0 run needs a reviewer agent from a
+different provider and model family than every Implement step, and a human
+technical review before publication. See
+[review requirements for every run](/docs/validation-and-approvals#review-requirements-for-every-run).
+
+The run console's controls depend on the stage:
 
 - **Redirect a Codex subscription turn.** While a Codex subscription turn runs,
   you can steer it with a **Steering instruction**. Other stages accept no
