@@ -25,13 +25,10 @@ Add connections under **Integrations**.
   [Agent SDK and Claude plan article](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)
   describes. Usage draws from your Claude plan's limits. The owner must first
   select protected Claude execution on the server.
-- **Codex with an API key** can target OpenAI, an OpenAI-compatible endpoint
-  that serves the Responses API, or Azure OpenAI (API version `v1`). Codex
-  0.156.1 supports only the Responses API, so services that offer only Chat
-  Completions (for example DeepSeek) are refused at enrollment. Each key revision records its
-  service, endpoint and exact model or deployment. The target check contacts the
-  endpoint and reports whether Responses access is verified, expired, refused or
-  failed. A direct run can be pinned to one exact revision.
+- **Codex with an API key** can use OpenAI, an OpenAI-compatible service at a
+  custom base URL, or Azure OpenAI. See
+  [Codex API-key services](#codex-api-key-services) below. A direct run can be
+  pinned to one exact key revision.
 - **Claude Code with an API key** uses the Anthropic Messages API.
 
 Up to four runs can use one Codex or Claude subscription connection at the same
@@ -42,6 +39,77 @@ Live acceptance of concurrent sessions is still pending.
 A saved login records authentication state. It does not prove a current
 account entitlement, execution authority on a worker, or a successful agent
 step. The run-start check verifies those before a run starts.
+
+## Codex API-key services
+
+Choose **Add Codex API key**, then pick the API service. Each service needs
+these fields:
+
+| Service | Required fields | What BranchRunner calls |
+| --- | --- | --- |
+| **OpenAI** | Exact model name | `https://api.openai.com/v1/responses`, key as a Bearer token |
+| **OpenAI-compatible (custom base URL)** | API base URL (for example `https://llm.example.com/v1`) and exact model name | The base URL plus `/responses`, key as a Bearer token |
+| **Azure OpenAI** | Resource URL (`https://<resource>.openai.azure.com`), exact deployment name, API version `v1` | `/openai/v1/responses` on the resource, key in the `api-key` header, deployment as the model |
+
+The base URL must use HTTPS on port 443 and a public DNS name. It cannot
+contain credentials, a query, `..` segments or an operation path such as
+`/responses`. The service, endpoint and exact model or deployment are fixed
+with the key revision; to change them, save a new key.
+
+**Responses only.** Codex 0.156.1 talks to providers only through the OpenAI
+Responses API. A service that offers only Chat Completions cannot run Codex.
+DeepSeek and dated Azure API versions (for example `2024-10-21`) are refused
+when you save the key. Other Chat Completions-only services are caught by the
+check below, which reports that the Responses operation was not found.
+
+### Admitted provider hosts
+
+The provider service contacts an OpenAI-compatible service directly, so its host
+is an outbound destination of your installation. Before a key for a custom host
+can be saved or checked, the installation owner admits that exact host name
+under **Integrations → Admitted provider hosts**. This needs a recent sign-in.
+There are no wildcards: admitting `llm.example.com` admits only that host.
+OpenAI and Azure OpenAI resource endpoints are built in and need no entry.
+
+Saving a key for a host that is not admitted is refused with
+`provider_host_not_admitted`. Withdrawing a host stops the provider service from
+contacting it from the next call on. Connections that target it stay saved but
+read as not ready until the host is admitted again. Every admission and
+withdrawal is audited, and the history is kept.
+
+BranchRunner always verifies the provider's TLS certificate. It refuses
+redirects and refuses a host whose DNS answer includes a private, loopback or
+other special-purpose address.
+
+### Check the connection
+
+After saving the key, open **Exact API target and provider check** on the
+connection and choose **Check Responses access**. This sends one small,
+authenticated Responses request through the provider service with the protected
+key. The request asks for at most 256 output tokens and expects a 64 KiB
+response or less, so it may use a little quota. The check passes only when the
+service returns a completed Responses result that contains a one-time nonce.
+
+A passing check keeps the key revision usable by runs for 24 hours, and each
+successful agent call extends that window. When the window lapses, the next run
+start, or a provider manager opening the connection, checks the target again.
+**Execution available** appears only after a real agent call has succeeded
+through your installation.
+
+A failed check names one of these causes:
+
+| Failure | Meaning |
+| --- | --- |
+| `unauthorized` | The provider rejected the key (HTTP 401 or 403). |
+| `operation_not_found` | The service has no Responses operation at that base URL, or the model or deployment name does not exist (HTTP 404 or 405). |
+| `rate_limited` | The provider rate-limited the check (HTTP 429). Try again later. |
+| `server_error` | The provider reported a server error (HTTP 5xx). |
+| `timeout` | The provider did not answer within the 45-second limit. |
+| `invalid_response` | The provider answered, but not with a completed Responses result containing the nonce. |
+| `network_refused` | The endpoint could not be reached safely: its address, TLS connection or a redirect was refused. |
+
+No failed check counts as ready. Provider response bodies and keys are never
+stored or shown.
 
 ## Remove a saved key or sign-in
 
