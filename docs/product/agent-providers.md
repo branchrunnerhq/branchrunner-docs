@@ -69,7 +69,7 @@ check below, which reports that the Responses operation was not found.
 
 The provider service contacts an OpenAI-compatible service directly, so its host
 is an outbound destination of your installation. Before a key for a custom host
-can be saved or checked, the installation owner admits that exact host name
+can be saved or checked, an owner of the organization admits that exact host name
 under **Integrations → Admitted provider hosts**. This needs a recent sign-in.
 There are no wildcards: admitting `llm.example.com` admits only that host.
 OpenAI and Azure OpenAI resource endpoints are built in and need no entry.

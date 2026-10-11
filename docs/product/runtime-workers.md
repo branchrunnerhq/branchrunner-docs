@@ -45,8 +45,11 @@ wget --https-only -qO /tmp/branchrunner-install <release URL>/install.sh && echo
 
 `<release URL>` stands for the release's address, which is published with the
 release; the 1.0.0 release is not published yet. Do not type these commands
-yourself. The server installer prints the exact commands for your release: the
-same-host command under "Next steps", and the remote command with
+yourself. On a single server you normally need neither: the server installer
+runs the same-host worker installer itself after owner setup (see
+[Add a worker on the same server](#add-a-worker-on-the-same-server)). The server
+installer prints the exact commands for your release: the same-host command
+under "Next steps" when run with `--no-worker`, and the remote command with
 `--remote-workers`. **Runtime workers > Add a worker** shows both, under
 **On this server's own host** and **On another host**. Neither
 needs a Git checkout. It downloads the release's `SHA256SUMS`, source-commit
@@ -72,8 +75,26 @@ enrolls again.
 
 ## Add a worker on the same server
 
-Complete the browser owner setup first, then run the same-host command on the
-control-plane host. It needs no `--remote-workers`, no published onboarding
+The server installer installs this worker itself, so a single-server
+installation takes one command. After the server is installed, it prints the
+setup link and waits for the browser owner setup, for at most the link's
+two-hour lifetime, with a progress line every minute. It then waits for the
+server's activation and runs this release's same-host worker installer in the
+same terminal. When that installer asks for the enrollment token, generate one
+under **Runtime workers > Add a worker** and paste it at the hidden prompt. The
+server installer never creates or reads the token.
+
+Run the same-host command yourself only when the server installer did not run
+it. With `--no-worker` it prints that command under "Next steps". When no
+terminal was attached, or the installer stopped before the worker step
+finished, the control plane stays installed and the installer prints the
+command that resumes,
+`sudo bash /opt/branchrunner/current/scripts/install.sh worker`. Run either on
+the control-plane host after owner setup. A rerun of the server installer skips the
+worker step while this host's worker is installed and enrolled from the same
+release.
+
+The same-host worker needs no `--remote-workers`, no published onboarding
 profile and no firewall rule. Without `--server`, the installer takes the
 expected release from the control plane on this host and checks that it agrees
 with the installation's state. It joins over the loopback worker channel

@@ -49,11 +49,16 @@ organization name. It prints numbered progress for its 12 phases, a timing
 table at the end, and writes a complete log under
 `/var/log/branchrunner-install/`. It is safe to rerun.
 
-When it finishes, it prints a single-use setup link that is valid for two
-hours. Open it in a browser to create the owner account with a password and an
-authenticator app (TOTP). After owner setup, the server finishes its own
+When the server is installed, it prints a single-use setup link that is valid
+for two hours. Open it in a browser to create the owner account with a password
+and an authenticator app (TOTP). After owner setup, the server finishes its own
 activation within seconds: provider admission, protected runtime preparation
 and evidence signing. **Runtime workers** shows the activation status.
+
+The same command then installs the runtime worker on this server, so a
+single-server installation needs no second command. The installer waits for
+owner setup and activation, then runs the release's same-host worker installer
+itself (see [Install a worker](#install-a-worker)).
 
 Measured upgrades on the development host took about 2 minutes for the server
 and about 2 minutes for the worker. A first installation also builds every image
@@ -64,18 +69,21 @@ from source and takes longer.
 Coding agents and validation run on a runtime worker. The worker installs from
 the same published release as the server. It needs no Git checkout.
 
-- **On the same server**, after owner setup, run the same-host command: a
-  checksum-pinned `install.sh worker --source-sha256 <archive>` one-liner
-  without `--server`. The server installer prints it under "Next steps", and
-  **Runtime workers > Add a worker** shows it under **On this server's own
-  host**. The worker joins over the loopback channel. The worker installer
-  stops and restarts the control panel containers that share its service
-  account, so the control panel is briefly unavailable.
+- **On the same server**, the server installer installs the worker itself.
+  After owner setup it runs the release's same-host worker installer in the
+  same terminal. The worker joins over the loopback channel. The worker
+  installer stops and restarts the control panel containers that share its
+  service account, so the control panel is briefly unavailable. If you ran the
+  server installer with `--no-worker`, run the same-host command it printed
+  under "Next steps" after owner setup. If it stopped before the worker step
+  finished, it printed the command that resumes,
+  `sudo bash /opt/branchrunner/current/scripts/install.sh worker`. **Runtime workers > Add a worker** also shows the same-host command
+  under **On this server's own host**.
 - **On another host**, first rerun the server installer once with
   `--remote-workers <CIDR>[,<CIDR>...]` after owner setup. The installer then
-  prints the remote worker command, which adds `--server`, and **Runtime
-  workers > Add a worker** shows it under **On another host**. Run it on the
-  worker host.
+  prints the remote worker command: the published installer in `worker` mode
+  with `--server`. **Runtime workers > Add a worker** shows it under **On
+  another host**. Run it on the worker host.
 
 A worker on another host runs Codex subscription and API-key stages. In 1.0.0,
 Claude subscription stages run only on the worker on the control-plane host, so
