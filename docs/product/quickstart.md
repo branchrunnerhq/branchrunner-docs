@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: Install a self-hosted BranchRunner server and worker, connect GitHub and a coding agent, and run the first task to a draft pull request.
+description: Install a self-hosted BranchRunner server and worker, connect GitHub and coding agents from two providers, and run the first task to a draft pull request.
 group: Start here
 order: 20
 ---
@@ -23,7 +23,13 @@ You need:
 - a public DNS name for that server, with TCP 80 and 443 reachable;
 - an open SSH session to the server while the installer runs;
 - a GitHub account or organization that owns the repositories to work on;
-- a Codex or Claude subscription, or an OpenAI or Anthropic API key.
+- coding agent access from **two** providers: a Codex subscription or OpenAI
+  API key, **and** a Claude subscription or Anthropic API key. One provider is
+  not enough. Every change is reviewed as Critical risk, and a Critical review
+  needs a reviewer from a different provider and model family than the
+  implementer;
+- a person who can act as the human technical reviewer. Every run also needs a
+  human technical review from a qualified person who did not write the change.
 
 The installer detects the Ubuntu release and architecture and stops on an
 unknown platform. It installs Docker, nginx, certificate renewal and firewall
@@ -118,25 +124,61 @@ sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-executio
 [Runtime workers](/docs/runtime-workers#protected-codex-on-another-host)
 explains where each value comes from.
 
-## Get to the first run
+## Before your first run
 
-Global Home shows **Get to your first run** with each remaining step and a link
-to the page that completes it:
+A run needs two providers and a human reviewer. Every change is classified
+Critical risk until it has been classified in detail, so every run's
+Independent review stage needs a reviewer from a different provider and model
+family than the implementer, plus a human technical review. An installation
+with a single provider can never pass Review.
+
+Global Home shows **Get to your first run** with the same steps, each linked to
+the page that completes it. A step reads as done only when the system that owns
+it says so. Steps the page cannot read are marked **Confirm yourself**.
 
 1. **Install the GitHub App.** Open **Integrations > Connect GitHub**. It creates
    this installation's own GitHub App on your account. Install it on the
    repositories BranchRunner may work on; that choice is made on GitHub.
-2. **Connect and attach a repository**, then import its source.
-3. **Admit a worker** under **Runtime workers**.
-4. **Connect a coding agent provider** under **Integrations**: sign in to a Codex
+2. **Connect and attach a repository.**
+3. **Import the repository source** from the repository page.
+4. **Admit a worker** under **Runtime workers**.
+5. **Connect a coding agent provider** under **Integrations**: sign in to a Codex
    subscription with a device code, sign in to a Claude subscription through the
    official Claude Code CLI, or add an API key. See
    [agent providers](/docs/agent-providers).
-5. **Publish an agent profile** under **Coding agents**. Order its provider
-   connections by priority.
-6. **Publish a workflow.** The starter template contains the six stages: Plan,
-   Implement, Validate, Independent review, Approval and Handoff.
-7. **Create a task** with numbered requirements, or import a GitHub issue.
+6. **Publish an agent profile** under **Coding agents** for the implementer.
+   Order its provider connections by priority.
+7. **Connect a second provider for Review** under **Integrations**. If the
+   implementer uses Codex or OpenAI, connect a Claude subscription or Anthropic
+   API key, and the other way round. It must report agent execution as
+   available.
+8. **Publish a reviewer profile on that connection** under **Coding agents**: a
+   profile with the reviewer role, on the second provider's connection.
+9. **Approve the independent-review signing policy** under **Runtime workers**.
+   The installer approves review and evidence signing by default, but its
+   default review policy need not use a reviewer from the second provider. The
+   installation owner chooses the second provider's reviewer and approves that
+   policy. The checklist reads this step as done only when review signing is
+   active and its reviewers can review a Critical change.
+10. **Qualify a human technical reviewer.** An owner or administrator, signed
+    in again with their authenticator, qualifies a reviewer under **Qualify a
+    reviewer** in the run's completion review. The reviewer must not have
+    written any of the change. A qualification lasts up to 90 days. This
+    happens during the first run, so have the reviewer ready.
+11. **Enforce protected credentials** under **Integrations**. Credential
+    enforcement starts in shadow mode, and API-key model calls are refused
+    until an owner or administrator turns it on. It cannot be turned off.
+12. **Protected execution selected.** Today this is the root command in
+    [Select agent execution](#select-agent-execution):
+    `branchrunner-configure-execution.sh codex-protected` or `claude-protected`.
+    The checklist reads it as done once a subscription connection reports agent
+    execution.
+13. **Publish a workflow.** The starter template contains the six stages: Plan,
+    Implement, Validate, Independent review, Approval and Handoff.
+14. **Create a task** with numbered requirements, or import a GitHub issue.
+
+A run that uses an API-key connection also needs a credential approval for
+that run, in the run console. By default one person gives it.
 
 Then start a run from the task. The run-start check lists anything that still
 blocks it, with the exact reason. Approve the plan, follow the run in its
