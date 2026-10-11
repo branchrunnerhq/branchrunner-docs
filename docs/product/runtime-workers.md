@@ -36,16 +36,18 @@ and the source archive pinned by SHA-256. They differ only in `--server`:
 
 ```bash
 # On the control-plane host itself:
-wget --https-only -qO /tmp/branchrunner-install https://branchrunner.com/releases/1.0.0/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --source-sha256 <source archive SHA-256>
+wget --https-only -qO /tmp/branchrunner-install <release URL>/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --source-sha256 <source archive SHA-256>
 
 # On another host:
-wget --https-only -qO /tmp/branchrunner-install https://branchrunner.com/releases/1.0.0/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --server https://branchrunner.example.com --source-sha256 <source archive SHA-256>
+wget --https-only -qO /tmp/branchrunner-install <release URL>/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --server https://branchrunner.example.com --source-sha256 <source archive SHA-256>
 ```
 
-Do not type these commands yourself. The server installer prints the exact
-commands for your release: the same-host command under "Next steps", and the
-remote command with `--remote-workers`. **Runtime workers > Add a worker** shows
-both, under **On this server's own host** and **On another host**. Neither
+`<release URL>` stands for the release's address, which is published with the
+release; the 1.0.0 release is not published yet. Do not type these commands
+yourself. The server installer prints the exact commands for your release: the
+same-host command under "Next steps", and the remote command with
+`--remote-workers`. **Runtime workers > Add a worker** shows both, under
+**On this server's own host** and **On another host**. Neither
 needs a Git checkout. It downloads the release's `SHA256SUMS`, source-commit
 record, `RELEASE.json` and source archive, and checks them against each other and
 against the release that the server advertises. It then rebuilds the published
@@ -163,6 +165,54 @@ Admission is checked per capability:
 
 A rerun from the same sources keeps the same image IDs and therefore the same
 identity.
+
+## Agent stages on another host
+
+In 1.0.0, a worker on another host runs Codex subscription stages, once the
+two owner steps below are done, and API-key stages. Claude subscription stages
+run only on the worker on the control-plane host: run placement skips a worker
+on another host for any run that uses a Claude subscription connection, with
+the reason `claude_remote_execution_unavailable`. If you use a Claude
+subscription, also install a worker on the control-plane host.
+
+### Protected Codex on another host
+
+A Codex subscription stage on a worker on another host runs in that host's
+protected launcher. The control plane's custody delivers the session credential
+over the worker channel; sign-in, refresh and exclusive verification stay on
+the control-plane host. After you admit the worker and its runtime identity,
+the owner completes two steps:
+
+1. **On the control-plane host**, admit the host for Codex custody and print
+   the control plane's execution document:
+
+   ```bash
+   sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host admit WORKER_ID HOST_KEY_SHA256 CLI_IMAGE SOURCE_IMAGE
+   sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host document
+   ```
+
+   `WORKER_ID` is the ID the worker installer prints when it enrolls
+   (`Enrolled as …`). `HOST_KEY_SHA256` is the protected host attestation key,
+   and `CLI_IMAGE` and `SOURCE_IMAGE` are the protected Codex CLI and source
+   images. **Runtime workers** shows them in the worker's runtime identity, and
+   the worker installer prints them in its summary: the `protected host key`
+   line, and the second and third values of the `protected Codex` line.
+   Custody refuses to deliver a session to a host that is not admitted or whose
+   signed proof names other images. `document` prints the execution document
+   as a single line.
+
+2. **On the worker host**, select protected Codex for that control plane,
+   passing the line `document` printed as `DOCUMENT`:
+
+   ```bash
+   sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-protected --control-plane DOCUMENT --worker-id WORKER_ID
+   ```
+
+   The worker opens its tunnels to the control plane within a few seconds.
+
+To withdraw the host, run `codex-remote-host withdraw WORKER_ID` on the
+control-plane host, which stops new sessions, or `none` on the worker host,
+which stops its protected Codex stack and closes the tunnels.
 
 ## Known limitations
 

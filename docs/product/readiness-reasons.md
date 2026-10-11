@@ -8,7 +8,8 @@ order: 152
 
 Every readiness check and every installed authority reports a short reason code
 when it is not available, instead of a generic "unavailable". A code contains no
-paths, keys, hosts or credentials, so you can share it with support as it is.
+paths, keys, hosts or credentials, so you can include it in a bug report as it
+is.
 
 Codes are joined from fixed segments with `:`. Read them from left to right:
 the first segments name the subsystem, the last one names the cause. A few
@@ -23,7 +24,7 @@ endings are shared by every subsystem:
 - `directory:<rule>` or `file:<name>:<rule>`: protected installation files have
   the wrong owner, mode or type.
 - `error_class_<Name>` or `unclassified`: no more specific cause is known.
-  Contact support with the full line.
+  Include the full line in a bug report.
 
 An error whose message is itself a short code, such as
 `handover_custody_peer_refused`, is reported as that code rather than as
@@ -90,7 +91,7 @@ the `worker` evidence source refused admission with
 | `admission:runtime_identity_not_admitted` | No runtime identity has been admitted for the worker. | Admit the runtime identity under **Runtime workers** after comparing it with what the worker installer printed. |
 | `admission:runtime_identity_changed` | The worker reports a change outside its images, for example another Docker version, security packs or egress path. Every capability on the worker is refused. | Compare both identities under **Runtime workers**, then admit the new one if you expected the change. |
 | `admission:runtime_identity_image_not_admitted`, `admission:runtime_identity_image_changed` | This capability's image became ready after the identity was admitted, or it now reports a different image. Only this capability is refused; the worker's other capabilities keep running. | Admit the reported runtime identity under **Runtime workers**, which names the image awaiting admission. |
-| `admission:runtime_identity_admission_invalid` | The stored admission no longer matches its own digest. | Contact support with the line. |
+| `admission:runtime_identity_admission_invalid` | The stored admission no longer matches its own digest. | Include the line in a bug report. |
 | `admission:capability_unavailable` | The worker reports this capability as not ready. | Read the worker's `Phase 6 worker capability` line. |
 | `admission:capability_identity_mismatch` | The worker's runtime, image or profile differs from what its admitted identity requires. | Rerun the worker installer from the control plane's release, then admit the identity if it changed. |
 | `admission:payload_version_unsupported`, `admission:capability_protocol_required`, `admission:worker_protocol_unsupported` | The worker is older than the control plane. | Upgrade the worker with the worker installer. |
@@ -98,7 +99,7 @@ the `worker` evidence source refused admission with
 | `no_worker`, `worker_not_eligible`, `no_current_receipt` | No worker is enrolled, admitted and heartbeating with a current receipt. | Install and admit a worker; resolve host drift under **Runtime workers**. |
 | `handover:agent.prepare_api_source:<reason>`, `handover:agent.prepare_subscription:<reason>` | The workflow Review source handover is not admitted. | Fix the inner reason, as above. |
 | `database:migration_ledger_not_current`, `database:catalog_objects_missing` | The database schema is behind this release. | Rerun the control-plane installer. |
-| `database:catalog_definition_drift` | A database object was changed by hand. | Contact support. Do not edit database objects. |
+| `database:catalog_definition_drift` | A database object was changed by hand. | Include the line in a bug report. Do not edit database objects. |
 | `artifact_store:probe:filesystem_unavailable` | The artifact volume cannot be read or written. | Check the volume is mounted and has free space. |
 | `artifact_store:probe:key_service_unavailable` | The artifact encryption key is unavailable. | Rerun the control-plane installer. |
 | `review_provider:unavailable`, `review_executor:unavailable` | The review policy, reviewer connections or reviewer profiles are not current. | If a Claude reviewer connection lapsed, sign in the subscription again by adding a new connection; otherwise rerun the installer. |
@@ -180,8 +181,8 @@ space. For `listener`, check for a port conflict.
 
 While running, they log refused requests at most once a minute:
 `<service> refused a <route> request (<reason>).` Reasons start with
-`handover_`, for example `handover_receiver_quota_exceeded`. Contact support
-with the line if a refusal repeats.
+`handover_`, for example `handover_receiver_quota_exceeded`. If a refusal
+repeats, include the line in a bug report.
 
 Source: `server/src/handoverCustody/serviceMain.ts`,
 `server/src/handover/serviceMain.ts` and `server/src/handover/refusalLog.ts`.
@@ -203,8 +204,9 @@ Source: `packages/worker/src/main.ts`, `phase6ProductionComposition.ts`,
 
 ## Reason families added in October 2026
 
-These families were added on 11 October 2026. Each one is summarised here; send
-the full line to support when the suggested action does not clear it.
+These families were added on 11 October 2026. Each one is summarised here;
+include the full line in a bug report when the suggested action does not clear
+it.
 
 - **Per-capability image admission:**
   `runtime_identity_image_not_admitted` and `runtime_identity_image_changed`
@@ -247,14 +249,15 @@ the full line to support when the suggested action does not clear it.
   The archive isolation check ended before it reported, so archive inspection
   stays unavailable (`capability_unavailable`). A container state ending in
   `_oom` points to memory pressure. Otherwise check the host load and rerun the
-  worker installer, then send the full line to support if it repeats.
+  worker installer, then include the full line in a bug report if it repeats.
 
-Source: the internal readiness runbook, `docs/runbooks/readiness-reasons.md` in
-the product repository.
+Source: the readiness runbook, `docs/runbooks/readiness-reasons.md` in the
+product source.
 
-## Contacting support
+## What to include in a bug report
 
-Send the full `/ready` output, the exact log line with its timestamp, the
-release version and the time of the last installer run. See also
+BranchRunner has no support service for self-hosted installations. A bug report
+should include the full `/ready` output, the exact log line with its
+timestamp, the release version and the time of the last installer run. See also
 [troubleshooting](/docs/troubleshooting) and
 [runtime workers](/docs/runtime-workers).

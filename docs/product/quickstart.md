@@ -71,7 +71,10 @@ the same published release as the server. It needs no Git checkout.
   workers > Add a worker** shows it under **On another host**. Run it on the
   worker host.
 
-See [runtime workers](/docs/runtime-workers).
+A worker on another host runs Codex subscription and API-key stages. In 1.0.0,
+Claude subscription stages run only on the worker on the control-plane host, so
+install that worker as well if you use a Claude subscription. See
+[runtime workers](/docs/runtime-workers).
 
 The worker installer runs fast installation checks, not the product test suite.
 `--verify` adds the full suite, which takes about two hours and is meant for
@@ -96,6 +99,24 @@ attestation verify. After an upgrade, a selected protected Codex runtime is
 selected again automatically once the worker installer has attested the host.
 Protected Claude must be selected again after the worker installer has prepared
 it for the new build.
+
+For protected Codex on a worker on another host, two more owner steps follow
+the worker's admission. On the control-plane host, admit that host for Codex
+custody and print the control plane's execution document:
+
+```bash
+sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host admit WORKER_ID HOST_KEY_SHA256 CLI_IMAGE SOURCE_IMAGE
+sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host document
+```
+
+Then, on the worker host, select protected Codex with that document:
+
+```bash
+sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-protected --control-plane DOCUMENT --worker-id WORKER_ID
+```
+
+[Runtime workers](/docs/runtime-workers#protected-codex-on-another-host)
+explains where each value comes from.
 
 ## Get to the first run
 

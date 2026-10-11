@@ -37,7 +37,9 @@ guarantee.
   worker installs from the same published release archive as the server, with
   a checksum-pinned one-line command, and needs no Git checkout. An owner or
   administrator admits every worker explicitly, together with the runtime
-  identity it reports. See [runtime workers](/docs/runtime-workers).
+  identity it reports. A worker on another host runs Codex subscription and
+  API-key stages; Claude subscription stages run only on the worker on the
+  control-plane host. See [runtime workers](/docs/runtime-workers).
 - **GitHub App setup in the app.** **Integrations > Connect GitHub** creates the
   installation's own GitHub App on your account. You choose its repositories on
   GitHub.
@@ -108,11 +110,16 @@ guarantee.
   can show "not measured yet".
 - **Agent profiles cannot use skills or MCP servers yet.** A profile that
   selects them cannot run. See [MCP and tools](/docs/mcp-and-tools).
-- **Separate-host workers need three image pins.** Validation, source repair
-  and archive inspection still take their images from server-wide pins. For a
-  worker whose control plane runs elsewhere, the worker installer prints the
-  three values, and the control-plane operator sets them. Publishing the remote
-  worker channel needs one server installer rerun after owner setup.
+- **Claude subscription runs only on the control-plane host.** In 1.0.0 a run
+  that uses a Claude subscription connection is placed only on the worker on
+  the control-plane host; a worker on another host is skipped with
+  `claude_remote_execution_unavailable`. Workers on other hosts run Codex
+  subscription and API-key stages.
+- **Protected Codex on another host needs two owner steps.** After the worker
+  is admitted, the owner admits the host for Codex custody on the control-plane
+  host, then selects protected Codex on the worker host with the control
+  plane's execution document. See
+  [runtime workers](/docs/runtime-workers#protected-codex-on-another-host).
 - **No public container images before a stable version.** The installer builds
   the BranchRunner images on your host and pulls only digest-pinned upstream
   base images such as Node.js, Ubuntu and PostgreSQL.

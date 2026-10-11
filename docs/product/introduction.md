@@ -38,9 +38,10 @@ judgment. It connects them through workflows whose state stays inspectable.
 
 The control plane (web UI, API and PostgreSQL) runs on your server. Runtime
 workers run repository checkouts, coding agents and validation in hardened
-containers, either on the same server or on other hosts you enroll. GitHub
-access goes through a GitHub App that the installation creates on your own
-account.
+containers, either on the same server or on other hosts you enroll. In 1.0.0,
+a worker on another host runs Codex subscription and API-key stages, while
+Claude subscription stages run only on the worker on the server. GitHub access
+goes through a GitHub App that the installation creates on your own account.
 
 ## Choose a path
 

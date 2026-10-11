@@ -107,11 +107,11 @@ a record rather than delete it.
 
 | Action | What it does | What it does not do |
 | ------ | ------------ | ------------------- |
-| Sign out, or sign out everywhere | Revokes the browser session, or all of your sessions and the preview identities you started. | It does not delete session records. |
-| Cancel a run | Revokes the run's credentials, sessions, egress exceptions and preview links, fences its lease and queues workspace destruction, unless you chose to keep the workspace. | It does not delete the run, its conversation, logs or evidence. It does not touch GitHub. |
+| Sign out, or sign out everywhere | Revokes the browser session, or all of your sessions and, when the optional preview edge is configured, the preview identities you started. | It does not delete session records. |
+| Cancel a run | Revokes the run's credentials, sessions, egress exceptions and, when the optional preview edge is configured, its preview links. It fences the run's lease and queues workspace destruction, unless you chose to keep the workspace. | It does not delete the run, its conversation, logs or evidence. It does not touch GitHub. |
 | Destroy a workspace | The worker removes the workspace's owned containers, volumes, networks and agent worktrees, then checks that they are gone. Anything it cannot prove it owns is quarantined, not deleted. | It leaves the repository clone and the source cache on the worker host. |
 | Cancel a publication | Stops publication and records the cancellation. | The branch and draft pull request stay on GitHub. Close or delete them there yourself. |
-| Revoke an approval, egress exception, preview link, credential grant, service identity or enrollment token | Marks it revoked and stops it working. | It deletes nothing. |
+| Revoke an approval, egress exception, preview link (when the optional preview edge is configured), credential grant, service identity or enrollment token | Marks it revoked and stops it working. | It deletes nothing. |
 | Decommission a worker | Revokes its certificates, fences its live leases and ends the credential sessions those leases authorized, in one transaction. The identity can never register again. | It changes nothing on the worker host. |
 | Remove a provider connection | Archives an unused connection. | It refuses a connection that has credentials, custody or history. |
 | Sign out of Codex | Asks the Codex CLI to sign out and removes the local Codex home. | It cannot confirm that OpenAI ended the session. |

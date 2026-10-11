@@ -24,7 +24,10 @@ Add connections under **Integrations**.
   protected containers, as Anthropic's
   [Agent SDK and Claude plan article](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)
   describes. Usage draws from your Claude plan's limits. The owner must first
-  select protected Claude execution on the server.
+  select protected Claude execution on the server. In 1.0.0, Claude
+  subscription stages run only on the worker on the control-plane host, not on
+  a worker on another host; see
+  [runtime workers](/docs/runtime-workers#agent-stages-on-another-host).
 - **Codex with an API key** can use OpenAI, an OpenAI-compatible service at a
   custom base URL, or Azure OpenAI. See
   [Codex API-key services](#codex-api-key-services) below. A direct run can be
