@@ -206,8 +206,10 @@ owner has admitted it for subscription execution as described below, and
 API-key stages. Claude subscription stages
 run only on the worker on the control-plane host: run placement skips a worker
 on another host for any run that uses a Claude subscription connection, with
-the reason `claude_remote_execution_unavailable`. If you use a Claude
-subscription, also install a worker on the control-plane host.
+the reason `claude_remote_execution_unavailable`. A Claude subscription's token
+stays in custody on the control-plane host and is never delivered to another
+host. If you use a Claude subscription, also install a worker on the
+control-plane host.
 
 ### Protected Codex on another host
 
@@ -243,9 +245,16 @@ owner approval is needed only when the host attestation key changes
 (`host_key_changed`).
 
 To withdraw the host, the owner chooses **Withdraw** under **Runtime workers**,
-or runs `codex-remote-host withdraw WORKER_ID` on the control-plane host; both
-stop new sessions. `none` on the worker host stops its protected Codex stack and
-closes the tunnels.
+or Root runs this on the control-plane host; both stop new sessions, and only a
+later owner approval admits the host again:
+
+```bash
+sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-remote-host withdraw WORKER_ID
+```
+
+`none` on the worker host stops its protected Codex stack and
+closes the tunnels, and later installer runs leave the host unselected until
+`codex-protected --control-plane` is run there again.
 
 ## Known limitations
 

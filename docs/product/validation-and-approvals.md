@@ -42,9 +42,12 @@ requirements, without the implementing session's context. Each finding offers
 reason**.
 
 The reviewer can be a signed-in Codex or Claude subscription or an API-key
-connection. For a subscription reviewer, the review evidence records the
-connection, the model and both reviewer sessions. See
-[agent providers](/docs/agent-providers) for the default review policy and the
+connection. The workflow's Review stage runs a published profile with the
+reviewer role, and that profile decides who reviews. For a subscription
+reviewer, the review evidence records the connection, the model and both
+reviewer sessions. See
+[review independence](/docs/agent-providers#review-independence) for how the
+review signing policy is derived from the reviewer profiles and for the
 independence rules.
 
 ## Review requirements for every run
@@ -72,8 +75,12 @@ requirement before you publish a workflow or start a run.
 The installation signs completion, evidence and review records with keys
 created on your server. By default the installer approves and activates signing
 itself after owner setup; the approval is recorded as made by the installer, not
-by the owner. With `--signing-approval owner`, the owner approves each signing
-proposal under **Runtime workers** instead.
+by the owner. Review signing follows once a published reviewer profile can
+review, and after a rebuild changes a signed fact, such as the reviewer image,
+the installation prepares and approves the replacement. With
+`--signing-approval owner`, the installation owner approves evidence signing
+under **Runtime workers**, and the review signing proposal and any replacement
+on **Home**, instead.
 
 ## Approval records
 

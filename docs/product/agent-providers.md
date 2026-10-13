@@ -13,15 +13,20 @@ verified live; the others are supported but not yet live-verified.
 
 ## Connections
 
-Add connections under **Integrations**.
+Add connections under **Integrations > Agent providers**. Each connection is
+one card that shows its name, status, health and type. Choose the name to open
+its details: health, sign-in or key state, when it was last checked and last
+used by a run, plan usage, and its actions (**Sign in**, **Verify**, **Plan
+value**, **Remove sign-in** or **Remove key**). Every action opens a dialog that
+names the connection it acts on.
 
 - **Codex with a subscription** signs in with a Codex device code. BranchRunner
   keeps the login encrypted and runs Codex with it in protected containers. The
   installation selects protected Codex execution automatically once the worker
   installer has attested the host.
 - **Claude Code with a subscription** signs in through the official Claude Code
-  CLI: open the Claude sign-in link, approve access, then paste the code Claude
-  shows. BranchRunner runs that official CLI with your login inside its
+  CLI. See [Claude subscription sign-in](#claude-subscription-sign-in) below.
+  BranchRunner runs that official CLI with the connection's token inside its
   protected containers, as Anthropic's
   [Agent SDK and Claude plan article](https://support.claude.com/en/articles/15036540-use-the-claude-agent-sdk-with-your-claude-plan)
   describes. Usage draws from your Claude plan's limits. The installation
@@ -43,13 +48,51 @@ runtimes, and the owner can opt out of those with
 `branchrunner-configure-execution.sh none`.
 
 Up to four runs can use one Codex or Claude subscription connection at the same
-time. Each run gets its own CLI process and home directory, and a concurrent
-session cannot rotate the login: only an exclusive verification refreshes it.
+time. Each run gets its own CLI process and home directory. A concurrent Codex
+session cannot rotate the login: only an exclusive verification refreshes it. A
+Claude token is never refreshed, and each run's copy must come back unchanged.
 Concurrent sessions are supported but not yet live-verified.
 
 A saved login records authentication state. It does not prove a current
 account entitlement, execution authority on a worker, or a successful agent
 step. The run-start check verifies those before a run starts.
+
+## Claude subscription sign-in
+
+Choose **Add Claude subscription** to create the connection. Then a provider
+administrator who signed in to BranchRunner with their authenticator within the
+last five minutes chooses **Sign in** on it:
+
+1. The dialog shows the Claude sign-in link. Open it, sign in to Claude and
+   approve access.
+2. Copy the code the Claude page shows and paste it into the dialog. The code
+   goes only to the waiting official CLI; BranchRunner does not store, log or
+   return it.
+3. The CLI creates a token for this connection with `claude setup-token`, valid
+   for one year. BranchRunner checks the account with the CLI, then confirms
+   the new token and the date until which it is valid.
+
+Each sign-in accepts one code. A wrong or expired code ends the sign-in; choose
+**Start a new sign-in** for a fresh link and code.
+
+The token is held encrypted in custody on the control-plane host and is passed
+only to the official CLI that BranchRunner runs. It carries no account email,
+organization or plan type, so the card identifies it only by a short
+fingerprint (`token …` and eight hex digits).
+
+The connection's details show "Long-lived token, valid until" and the date. In
+the last 30 days they add "Sign in again before" the date "to renew the token".
+A Claude session is refused with `sign_in_required` when the token would expire
+before the session's deadline plus 10 minutes. After the token expires, the
+connection reads **Needs attention** and **Verify** is no longer offered. To
+sign in again, choose **Remove sign-in**, add a new Claude subscription
+connection and sign in on it, then select the new connection in the agent
+profiles that used the old one.
+
+**Verify** checks that custody still holds the same token and that it works,
+using your current BranchRunner session; it asks for no new sign-in. Only the
+administrator who signed the connection in can verify it. A successful Verify
+also records the plan usage the CLI reports.
 
 ## Codex API-key services
 
@@ -78,7 +121,8 @@ check below, which reports that the Responses operation was not found.
 The provider service contacts an OpenAI-compatible service directly, so its host
 is an outbound destination of your installation. Before a key for a custom host
 can be saved or checked, an owner of the organization admits that exact host name
-under **Integrations → Admitted provider hosts**. This needs a recent sign-in.
+under **Settings → Admitted provider hosts**. This needs a recent sign-in. The
+**Admit host** action on such a connection opens that section.
 There are no wildcards: admitting `llm.example.com` admits only that host.
 OpenAI and Azure OpenAI resource endpoints are built in and need no entry.
 
@@ -94,12 +138,12 @@ other special-purpose address.
 
 ### Check the connection
 
-After saving the key, open **Exact API target and provider check** on the
-connection and choose **Check Responses access**. This sends one small,
-authenticated Responses request through the provider service with the protected
-key. The request asks for at most 256 output tokens and expects a 64 KiB
-response or less, so it may use a little quota. The check passes only when the
-service returns a completed Responses result that contains a one-time nonce.
+After saving the key, choose **Verify** on the connection. The dialog shows the
+key's exact API target and sends one small, authenticated Responses request
+through the provider service with the protected key. The request asks for at
+most 256 output tokens and expects a 64 KiB response or less, so it may use a
+little quota. The check passes only when the service returns a completed
+Responses result that contains a one-time nonce.
 
 A passing check keeps the key revision usable by runs for 24 hours, and each
 successful agent call extends that window. When the window lapses, the next run
@@ -127,21 +171,23 @@ stored or shown.
 A provider administrator with a recent authenticator sign-in can remove a
 credential under **Integrations**:
 
-- **Remove saved key** on an API-key connection disconnects the connection,
+- **Remove key** on an API-key connection disconnects the connection,
   revokes every credential grant that names the key and closes their open
   sessions, which also cuts off a provider call in flight. The provider service
   then deletes the stored key and signs a removal statement. Saved keys are
   sealed at rest, each encrypted with AES-256-GCM under its own data key.
 - **Remove sign-in** on a Claude subscription connection archives the
-  connection, so no run can use the sign-in and a running Claude stage stops at
-  its next check. Custody then deletes the sealed sign-in and keeps a tombstone.
-  To sign in again, add a new Claude connection.
+  connection, so no run can use the token and a running Claude stage stops at
+  its next check. Custody then deletes the sealed token and keeps a tombstone.
+  To sign in again, add a new Claude subscription connection.
+- **Remove sign-in** on a Codex subscription connection revokes the saved login
+  and stops its active sessions.
 
 The removal shows as pending until custody confirms the deletion; a pending
 credential is already revoked and unusable. Removal does not revoke the key or
-end the session at the provider, so also revoke the key in the provider's
-console or sign out in your Claude account. To keep using an API-key connection,
-save a new key on it. See
+token at the provider: also revoke an API key in the provider's console.
+BranchRunner cannot revoke a Claude token at Anthropic. To keep using an API-key
+connection, save a new key on it. See
 [data retention, deletion and custody](/docs/data-retention-deletion-custody).
 
 ## Agent profiles and connection priority
@@ -171,10 +217,12 @@ earliest reset time.
 
 ## Plan usage
 
-Subscription cards under **Integrations** show the plan-limit usage the provider
-reports, for example the five-hour and weekly windows and their reset times. A
-connection without a measurement shows "not measured yet", never 0 %. Claude
-reports usage only after a warning threshold is passed.
+The details of a Codex or Claude subscription connection show the plan-limit
+usage the provider reports, for example "5-hour: 62% used, resets 20:15" and the
+weekly window, a reached limit first, and when the figures were observed. Each
+sign-in, **Verify** and run records a new reading. A connection without a
+measurement shows "Not measured yet", never 0 %. An API-key connection has no
+plan windows.
 
 ## Automatic failover
 
@@ -195,9 +243,11 @@ Each run and each connection shows two figures:
   minus your discount, and a subscription's monthly fee is shared across that
   month's sessions.
 
-Record a subscription's monthly fee or an API key's discount on the connection.
-A model without a list price shows "list price not set" and is left out of
-totals, which are then marked incomplete. When the provider reports no cache
+Record a subscription's monthly fee or an API key's discount with **Plan value**
+on the connection (**Set plan fee** or **Set API discount**). The same dialog
+shows the connection's period value and the model list prices. A model without
+a list price shows "list price not set" and is left out of totals, which are
+then marked incomplete. When the provider reports no cache
 detail, the figure is marked as an upper bound. Budget enforcement counts API
 charges only, not subscription fees.
 
@@ -209,10 +259,14 @@ It evaluates the diff and evidence against the stated requirements.
 The reviewer can be a signed-in Codex or Claude subscription or an API-key
 connection. A subscription reviewer runs both review passes through the
 protected subscription runtime, each pass in its own isolated session, and
-needs no API key. The installer's default review policy prefers a signed-in
-subscription that runs the model of a published agent profile, and otherwise
-uses the installation's oldest Codex API-key connection. Owner choices under
-**Runtime workers** take precedence.
+needs no API key. The workflow's Review stage runs a published profile with the
+reviewer role, and that profile decides who reviews. The installation derives
+its review signing policy from the published reviewer profiles: a signed-in
+subscription first, otherwise the OpenAI API-key connection a reviewer profile
+uses. Nothing is chosen on the server. Publish the reviewer profile on the
+second provider before review signing first turns on: once review signing is
+installed, publishing a different reviewer profile does not change the
+installed policy.
 
 A model family is the reviewer's upstream provider: every OpenAI model, through
 Codex, is one family, and every Anthropic model, through Claude, is another. A

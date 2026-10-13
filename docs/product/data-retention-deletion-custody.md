@@ -114,10 +114,9 @@ a record rather than delete it.
 | Revoke an approval, egress exception, credential grant, service identity or enrollment token | Marks it revoked and stops it working. | It deletes nothing. |
 | Decommission a worker | Revokes its certificates, fences its live leases and ends the credential sessions those leases authorized, in one transaction. The identity can never register again. | It changes nothing on the worker host. |
 | Remove a provider connection | Archives an unused connection. | It refuses a connection that has credentials, custody or history. |
-| Sign out of Codex | Asks the Codex CLI to sign out and removes the local Codex home. | It cannot confirm that OpenAI ended the session. |
-| Revoke a managed Codex sign-in | Replaces the custody record with a revoked record that holds no credential, and stops active sessions. | The old file is replaced, not securely overwritten. It cannot end the session at OpenAI. |
+| Remove a Codex sign-in | Replaces the custody record with a revoked record that holds no credential, and stops active sessions. | The old file is replaced, not securely overwritten. It cannot end the session at OpenAI. |
 | Remove a saved API key | Disconnects the connection, revokes the key's credential grants and closes their sessions at once. The provider service then deletes the stored key and confirms it with a signed statement. | It keeps the enrollment receipt and audit history. The file is unlinked, not overwritten; it held only ciphertext. It cannot revoke the key at the provider. |
-| Remove a Claude sign-in | Archives the connection, so no run can use the sign-in, and a running Claude stage stops at its next check. Custody then deletes the sealed sign-in, keeps a tombstone and confirms it with a signed statement. | It cannot end the session at Anthropic. |
+| Remove a Claude sign-in | Archives the connection, so no run can use its token, and a running Claude stage stops at its next check. Custody then deletes the sealed token, keeps a tombstone and confirms it with a signed statement. | It cannot revoke the token at Anthropic. |
 | Uninstall the GitHub App at GitHub | The next grant check (normally within four minutes) marks the repository grants revoked and pauses affected runs. | It deletes nothing in BranchRunner or at GitHub. |
 
 Previews are not available in 1.0.0, so a 1.0.0 installation has no preview
@@ -132,13 +131,15 @@ the next reconciliation pass retries the deletion.
 encrypted with AES-256-GCM under its own data key, which is wrapped with the
 provider service's RSA-OAEP-3072 enrollment key. That key is kept apart from the
 key files, and the key files are readable only by the service account (mode
-0600). **A Claude subscription sign-in** is kept sealed under
+0600). **A Claude subscription sign-in** is a token valid for one year, kept
+sealed on the control-plane host under
 `/var/lib/branchrunner/claude-subscription-custody` until it is removed. Removal
 deletes that file and leaves a tombstone, so the connection cannot be enrolled
-again; add a new Claude connection to sign in again.
+again; add a new Claude subscription connection to sign in again.
 
-Removing either one does not end it at the provider. Also revoke the key in the
-provider's console, or sign out of the session in your Claude account.
+Removing either one does not revoke it at the provider. Also revoke an API key
+in the provider's console. BranchRunner cannot revoke a Claude token at
+Anthropic.
 
 ## Holds
 

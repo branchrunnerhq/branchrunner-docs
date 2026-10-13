@@ -153,9 +153,9 @@ it says so. Steps the page cannot read are marked **Confirm yourself**.
 3. **Import the repository source** from the repository page.
 4. **Admit a worker** under **Runtime workers**.
 5. **Connect a coding agent provider** under **Integrations**: sign in to a Codex
-   subscription with a device code, sign in to a Claude subscription through the
-   official Claude Code CLI, or add an API key. See
-   [agent providers](/docs/agent-providers).
+   subscription with a device code, sign in to a Claude subscription, which has
+   the official Claude Code CLI create a token valid for one year, or add an API
+   key. See [agent providers](/docs/agent-providers).
 6. **Publish an agent profile** under **Coding agents** for the implementer.
    Order its provider connections by priority.
 7. **Connect a second provider for Review** under **Integrations**. If the
@@ -164,12 +164,14 @@ it says so. Steps the page cannot read are marked **Confirm yourself**.
    available.
 8. **Publish a reviewer profile on that connection** under **Coding agents**: a
    profile with the reviewer role, on the second provider's connection.
-9. **Approve the independent-review signing policy** under **Runtime workers**.
-   The installer approves review and evidence signing by default, but its
-   default review policy need not use a reviewer from the second provider. The
-   installation owner chooses the second provider's reviewer and approves that
-   policy. The checklist reads this step as done only when review signing is
-   active and its reviewers can review a Critical change.
+9. **Turn on independent review signing.** Nothing is configured on the
+   server: the review signing policy is derived from the reviewer profile that
+   the workflow's Review stage runs (step 8), and the installation turns it on
+   by itself. If the server was installed with `--signing-approval owner`, the
+   installation owner approves the proposal on **Home**. The checklist reads
+   this step as done only when review signing is active and its reviewers can
+   review a Critical change. Publish the reviewer profile on the second
+   provider before review signing first turns on.
 10. **Qualify a human technical reviewer.** An owner or administrator, signed
     in again with their authenticator, qualifies a reviewer under **Qualify a
     reviewer** in the run's completion review. The reviewer must not have
@@ -186,7 +188,8 @@ it says so. Steps the page cannot read are marked **Confirm yourself**.
 A fresh installation starts with protected credential enforcement on, so there
 is no enforcement step. A run that uses an API-key connection also needs a
 credential approval for that run, in the run console. By default one person
-gives it.
+gives it; an owner can require a second approver under **Settings → API-key
+credential approval**.
 
 Then start a run from the task. The run-start check lists anything that still
 blocks it, with the exact reason. Approve the plan, follow the run in its

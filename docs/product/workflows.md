@@ -14,9 +14,11 @@ A BranchRunner workflow runs six stages in order:
 3. **Validate** runs the repository's checks in a hardened validation container
    and returns failures to implementation for repair.
 4. **Independent review** evaluates the change against the requirements without
-   the implementing session's context. In 1.0.0 every run needs a reviewer from
-   a different provider and model family than every Implement step, plus a
-   human technical review; see
+   the implementing session's context. The stage runs a published profile with
+   the reviewer role; see
+   [review independence](/docs/agent-providers#review-independence). In 1.0.0
+   every run needs a reviewer from a different provider and model family than
+   every Implement step, plus a human technical review; see
    [review requirements for every run](/docs/validation-and-approvals#review-requirements-for-every-run).
 5. **Approval** is the human decision in the completion review, bound to the
    sealed evidence.

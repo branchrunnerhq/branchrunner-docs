@@ -45,12 +45,33 @@ before retrying. A retry should not erase the first failure.
   `codex-protected` or `claude-protected`, or rerun the worker installer after
   fixing a refused attestation. API-key connections need no execution
   selection. The direct `codex` and `claude` adapters are retired and refused
-  with `adapter_retired`. For protected Codex on a worker on another host, the
-  installation owner must also choose **Admit for subscription execution**
-  under **Runtime workers** after admitting its runtime identity. Without it, a
-  Codex subscription run is not placed on that worker, or is refused with
+  with `adapter_retired`.
+- **Codex subscription not placed on a worker on another host:** that host
+  needs its own remote selection and the owner's admission. The worker
+  installer selects remote execution on the worker host when the control plane
+  already had protected Codex selected. If it did not yet, if the host enrolled
+  later with `br-worker-enrol`, or if `none` was recorded on the worker host,
+  run this on the worker host once the control plane is ready:
+
+  ```bash
+  sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh codex-protected --control-plane
+  ```
+
+  Then the installation owner chooses **Admit for subscription execution** under
+  **Runtime workers** after admitting the worker's runtime identity, and the
+  page shows `admitted` or the reason it was refused. Without both, a Codex
+  subscription run is not placed on that worker, or is refused with
   `remote_execution_tunnel_unavailable`. See
   [protected Codex on another host](/docs/runtime-workers#protected-codex-on-another-host).
+- **Claude subscription not placed on a worker on another host:** this is
+  expected in 1.0.0 (`claude_remote_execution_unavailable`). Claude
+  subscription stages run only on the worker on the control-plane host.
+- **Claude subscription needs attention:** its one-year token expired, or the
+  organization's credentials were revoked after it signed in. **Verify** is not
+  offered and runs cannot use it. Choose **Remove sign-in**, add a new Claude
+  subscription connection, sign in on it and select it in the agent profiles
+  that used the old one. See
+  [Claude subscription sign-in](/docs/agent-providers#claude-subscription-sign-in).
 - **Validation failed:** reproduce the exact command inside the preserved
   workspace. If only the hygiene check ran, the repository has no supported npm
   suite; see [validation and approvals](/docs/validation-and-approvals).

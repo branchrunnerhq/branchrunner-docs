@@ -77,17 +77,22 @@ and model providers are not part of this release.
 - **GitHub App setup in the app.** **Integrations > Connect GitHub** creates the
   installation's own GitHub App on your account. You choose its repositories on
   GitHub.
-- **Provider connections.** A Codex subscription sign-in and a Claude
-  subscription sign-in through the official Claude Code CLI, both run inside
-  protected containers; API keys for OpenAI (including OpenAI-compatible
-  endpoints and Azure OpenAI) and for Anthropic. Up to four runs can share one
-  subscription connection. Saved API keys are sealed at rest, and a saved key
-  or Claude sign-in can be removed from **Integrations**. See
+- **Provider connections.** A Codex subscription signs in with a device code. A
+  Claude subscription signs in through the official Claude Code CLI, which
+  creates a token for the connection that is valid for one year. Both
+  subscriptions run inside protected containers. API keys work for OpenAI
+  (including OpenAI-compatible endpoints and Azure OpenAI) and for Anthropic.
+  Up to four runs can share one subscription connection. Saved API keys are
+  sealed at rest, and a saved key or a subscription sign-in can be removed from
+  **Integrations**. Admitted provider hosts, credential enforcement and API-key
+  credential approval are under **Settings**. See
   [agent providers](/docs/agent-providers).
 - **Connection priority, plan usage and failover.** An agent profile orders up
   to six connections of one agent by drag and drop. Each stage uses the first
   eligible connection, based on measured plan-limit usage, and moves to the next
-  one when a plan limit, rate limit, quota or login stops it.
+  one when a plan limit, rate limit, quota or login stops it. Codex and Claude
+  subscription cards show the plan windows the provider reported, such as the
+  5-hour and weekly windows, at sign-in, at **Verify** and after each run.
 - **Theoretical and effective cost.** Each run and connection shows what its
   tokens would cost at API list price and what the work actually cost under
   your subscription fee or API discount.
@@ -133,16 +138,15 @@ and model providers are not part of this release.
   Claude connections. A stage switches only at its start or after a failure
   that changed nothing in the workspace.
 - **Cost figures can be upper bounds.** When a producer reports no cache detail,
-  all input is priced at the uncached rate and the figure is marked. Claude
-  reports plan usage only after a warning threshold, so a Claude subscription
-  can show "not measured yet".
+  all input is priced at the uncached rate and the figure is marked.
 - **Agent profiles cannot use skills or MCP servers yet.** A profile that
   selects them cannot run. See [MCP and tools](/docs/mcp-and-tools).
-- **Claude subscription runs only on the control-plane host.** In 1.0.0 a run
+- **Claude subscription runs on the control-plane worker only.** In 1.0.0 a run
   that uses a Claude subscription connection is placed only on the worker on
   the control-plane host; a worker on another host is skipped with
-  `claude_remote_execution_unavailable`. Workers on other hosts run Codex
-  subscription and API-key stages.
+  `claude_remote_execution_unavailable`. The Claude token stays in custody on
+  the control-plane host and is never delivered to another host. Workers on
+  other hosts run Codex subscription and API-key stages.
 - **Protected Codex on another host needs the owner's admission.** The worker
   installer on that host selects remote execution itself. After the worker and
   its runtime identity are admitted, the installation owner chooses **Admit for
