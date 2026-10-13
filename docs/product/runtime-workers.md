@@ -40,11 +40,11 @@ and the source archive pinned by SHA-256. They differ only in `--server`:
 wget --https-only -qO /tmp/branchrunner-install <release URL>/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --source-sha256 <source archive SHA-256>
 
 # On another host:
-wget --https-only -qO /tmp/branchrunner-install <release URL>/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --server https://branchrunner.example.com --source-sha256 <source archive SHA-256>
+wget --https-only -qO /tmp/branchrunner-install <release URL>/install.sh && echo '<installer SHA-256>  /tmp/branchrunner-install' | sha256sum --check --strict && sudo bash /tmp/branchrunner-install worker --server <control-plane URL> --source-sha256 <source archive SHA-256>
 ```
 
 `<release URL>` stands for the release's address, which is published with the
-release notes. Do not type these commands
+release notes, and `<control-plane URL>` for your server's HTTPS address. Do not type these commands
 yourself. On a single server you normally need neither: the server installer
 runs the same-host worker installer itself after owner setup (see
 [Add a worker on the same server](#add-a-worker-on-the-same-server)). The server
