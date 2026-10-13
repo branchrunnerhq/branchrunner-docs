@@ -139,7 +139,9 @@ again; add a new Claude subscription connection to sign in again.
 
 Removing either one does not revoke it at the provider. Also revoke an API key
 in the provider's console. BranchRunner cannot revoke a Claude token at
-Anthropic.
+Anthropic; Anthropic's help center says the Claude Code tokens of your Claude
+account are managed under **Settings > Claude Code** on claude.ai
+([how do I log out of all active sessions](https://support.claude.com/en/articles/10310342-how-do-i-log-out-of-all-active-sessions)).
 
 ## Holds
 

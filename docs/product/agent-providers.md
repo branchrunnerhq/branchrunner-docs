@@ -186,8 +186,11 @@ credential under **Integrations**:
 The removal shows as pending until custody confirms the deletion; a pending
 credential is already revoked and unusable. Removal does not revoke the key or
 token at the provider: also revoke an API key in the provider's console.
-BranchRunner cannot revoke a Claude token at Anthropic. To keep using an API-key
-connection, save a new key on it. See
+BranchRunner cannot revoke a Claude token at Anthropic; Anthropic's help
+center says the Claude Code tokens of your Claude account are managed under
+**Settings > Claude Code** on claude.ai
+([how do I log out of all active sessions](https://support.claude.com/en/articles/10310342-how-do-i-log-out-of-all-active-sessions)).
+To keep using an API-key connection, save a new key on it. See
 [data retention, deletion and custody](/docs/data-retention-deletion-custody).
 
 ## Agent profiles and connection priority
