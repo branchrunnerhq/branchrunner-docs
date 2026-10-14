@@ -161,7 +161,9 @@ it says so. Steps the page cannot read are marked **Confirm yourself**.
 7. **Connect a second provider for Review** under **Integrations**. If the
    implementer uses Codex or OpenAI, connect a Claude subscription or Anthropic
    API key, and the other way round. It must report agent execution as
-   available.
+   available. For a signed-in Claude subscription that does not yet, the
+   checklist names the first thing to fix and its action, as the connection's
+   card does.
 8. **Publish a reviewer profile on that connection** under **Coding agents**: a
    profile with the reviewer role, on the second provider's connection.
 9. **Turn on independent review signing.** Nothing is configured on the

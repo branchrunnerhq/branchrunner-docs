@@ -56,8 +56,9 @@ select explicitly. Include these keys in your backups; see
 
 Rotate a provider key with **Replace key** on its connection, which saves a new
 key revision. A Claude subscription token is valid for one year, and the
-connection shows a renewal notice in its last 30 days; see
-[Claude subscription sign-in](/docs/agent-providers#claude-subscription-sign-in).
+connection shows a renewal notice in its last 30 days. Renew it with **Sign in
+again** on the same connection; see
+[Sign in again](/docs/agent-providers#sign-in-again).
 Review which agent profiles use a connection before archiving it to avoid
 unexplained run failures.
 

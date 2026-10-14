@@ -79,8 +79,10 @@ and model providers are not part of this release.
   GitHub.
 - **Provider connections.** A Codex subscription signs in with a device code. A
   Claude subscription signs in through the official Claude Code CLI, which
-  creates a token for the connection that is valid for one year. Both
-  subscriptions run inside protected containers. API keys work for OpenAI
+  creates a token for the connection that is valid for one year. **Sign in
+  again** renews the token on the same connection, and an installation can
+  hold several Claude accounts, one per connection. Both subscriptions run
+  inside protected containers. API keys work for OpenAI
   (including OpenAI-compatible endpoints and Azure OpenAI) and for Anthropic.
   Up to four runs can share one subscription connection. Saved API keys are
   sealed at rest, and a saved key or a subscription sign-in can be removed from

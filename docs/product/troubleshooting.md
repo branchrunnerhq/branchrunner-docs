@@ -68,10 +68,25 @@ before retrying. A retry should not erase the first failure.
   subscription stages run only on the worker on the control-plane host.
 - **Claude subscription needs attention:** its one-year token expired, or the
   organization's credentials were revoked after it signed in. **Verify** is not
-  offered and runs cannot use it. Choose **Remove sign-in**, add a new Claude
-  subscription connection, sign in on it and select it in the agent profiles
-  that used the old one. See
-  [Claude subscription sign-in](/docs/agent-providers#claude-subscription-sign-in).
+  offered and runs cannot use it. For an expired token, choose **Sign in
+  again** on the connection; the connection and its agent profiles stay. After
+  a revocation, **Sign in again** is not offered: choose **Remove sign-in**, add
+  a new Claude subscription connection, sign in on it and select it in the
+  agent profiles that used the old one. See
+  [Sign in again](/docs/agent-providers#sign-in-again).
+- **Claude subscription signed in but not Execution available:** the card
+  names the first thing to fix, and its details list each one with its action
+  under **Agent execution**. See
+  [when a Claude subscription can run agents](/docs/agent-providers#when-a-claude-subscription-can-run-agents).
+- **Sign in again refused:** "Claude subscription operations on this
+  connection are still running. Sign in again after they settle." Wait until
+  the Claude stages that use the connection have finished or stopped, then try
+  again.
+- **Claude run refused at session approval:** only runs that the connection's
+  signing administrator starts can use it. That is the administrator who
+  signed it in most recently, including with **Sign in again**. Have them start
+  the run. A provider administrator who wants to start runs with the
+  connection can choose **Sign in again** to become its signing administrator.
 - **Validation failed:** reproduce the exact command inside the preserved
   workspace. If only the hygiene check ran, the repository has no supported npm
   suite; see [validation and approvals](/docs/validation-and-approvals).

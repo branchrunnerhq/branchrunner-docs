@@ -102,7 +102,7 @@ the `worker` evidence source refused admission with
 | `database:catalog_definition_drift` | A database object was changed by hand. | Include the line in a bug report. Do not edit database objects. |
 | `artifact_store:probe:filesystem_unavailable` | The artifact volume cannot be read or written. | Check the volume is mounted and has free space. |
 | `artifact_store:probe:key_service_unavailable` | The artifact encryption key is unavailable. | Rerun the control-plane installer. |
-| `review_provider:unavailable`, `review_executor:unavailable` | The review policy, reviewer connections or reviewer profiles are not current. | If a Claude reviewer's token expired, remove its sign-in and sign in on a new Claude subscription connection; otherwise rerun the installer. |
+| `review_provider:unavailable`, `review_executor:unavailable` | The review policy, reviewer connections or reviewer profiles are not current. | If a Claude reviewer's token expired, choose **Sign in again** on its connection; otherwise rerun the installer. |
 | `probe_failed:transport_unavailable`, `probe_deadline` | The API cannot reach the Phase 6 observer. | Check `branchrunner-phase6-observer` is running and read its log. |
 | `probe_failed:peer_identity_mismatch`, `authority_unconfigured` | The observer's registration or certificate is not the installed one. | Rerun the control-plane installer. |
 
@@ -195,12 +195,31 @@ Source: `server/src/handoverCustody/serviceMain.ts`,
 | `Installed handover source authority is unavailable (<token>)` | Diff analysis, validation and independent review wait for the handover source. | `handover_active_work` clears after the running work; otherwise check the server's handover services. |
 | `Installed API execution family is unavailable (api_plan_setup_<step>_<cause>)` | API execution setup failed at that step. | Rerun the worker installer. |
 | `Installed Claude execution family is inactive (not_selected).` | Protected Claude is not selected on this host. On the control-plane host the worker installer selects it automatically once it has prepared the Claude runtime, unless an owner recorded the opt-out with `none`. | Rerun the worker installer, or select it by hand: `sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh claude-protected`. |
-| `Installed Claude execution family is unavailable (claude_<step>_<cause>)` | Protected Claude could not start. | Rerun the worker installer, which selects Claude again. If the subscription's token expired, remove its sign-in and sign in on a new Claude subscription connection. |
+| `Installed Claude execution family is unavailable (claude_<step>_<cause>)` | Protected Claude could not start. | Rerun the worker installer, which selects Claude again. If the subscription's token expired, choose **Sign in again** on its connection. |
 | `... failed its readiness probe (runtime_unavailable: archive_docker_daemon_unavailable)` | Docker is not answering the archive probe. | Check `systemctl status docker`. |
 | `... failed its readiness probe (runtime_unavailable: archive_boundary_archive_canary_<cause>)` | The archive isolation canary failed. | A `report_deadline` points to an overloaded host; profile or identity causes mean the worker installer should be rerun. |
 
 Source: `packages/worker/src/main.ts`, `phase6ProductionComposition.ts`,
 `isolatedArchiveRuntime.ts` and `dockerArchiveBoundaryCanary.ts`.
+
+## Claude subscription execution blockers
+
+A Claude subscription connection that cannot run agents reports why in its
+`executionBlockers` field, which `GET /api/v1/provider-connections` returns.
+It holds at most one sign-in code, then at most one installation code, and is
+empty exactly when `executionAvailable` is true:
+
+- Sign-in codes, in the order they are checked: `custody_unreadable`,
+  `not_signed_in`, `credentials_revoked`, `sign_in_outdated`, `token_expired`.
+- Installation codes: `protected_claude_not_selected`, `claude_worker_offline`,
+  `claude_worker_capability_missing`.
+
+The connection's card under **Integrations** shows the same causes with the
+action for each. See
+[when a Claude subscription can run agents](/docs/agent-providers#when-a-claude-subscription-can-run-agents).
+
+Source: `packages/contracts/src/api/providerConnections.ts` and
+`src/data/claudeExecutionBlockers.ts`.
 
 ## Other reason families
 

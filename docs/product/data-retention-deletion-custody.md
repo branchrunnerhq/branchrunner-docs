@@ -73,6 +73,7 @@ are none, because the API pins every organization when it starts.
 | Retention telemetry batches | Deleted. | Hourly, after 90 days, unless an alert signal references the batch. |
 | Prepared handover bundles on a worker | Deleted by the worker. | Every 15 minutes, once expired, delivered past their retention, or orphaned. A legal hold keeps them. |
 | A worker's per-repository source cache | Repacked and pruned (`git gc --prune=now`). | At most once a day, during a source import into that cache. |
+| A Claude subscription operation's files on the control-plane host: its staged home and workspace under `/run/branchrunner/claude-subscription-native-operations` | Erased by the protected Claude service. Its settlement records are kept for the latest 1,024 operations; older ones are deleted. | As soon as the operation has settled and its stop is proved, also when the operation failed. |
 
 ## What BranchRunner keeps
 
@@ -116,7 +117,8 @@ a record rather than delete it.
 | Remove a provider connection | Archives an unused connection. | It refuses a connection that has credentials, custody or history. |
 | Remove a Codex sign-in | Replaces the custody record with a revoked record that holds no credential, and stops active sessions. | The old file is replaced, not securely overwritten. It cannot end the session at OpenAI. |
 | Remove a saved API key | Disconnects the connection, revokes the key's credential grants and closes their sessions at once. The provider service then deletes the stored key and confirms it with a signed statement. | It keeps the enrollment receipt and audit history. The file is unlinked, not overwritten; it held only ciphertext. It cannot revoke the key at the provider. |
-| Remove a Claude sign-in | Archives the connection, so no run can use its token, and a running Claude stage stops at its next check. Custody then deletes the sealed token, keeps a tombstone and confirms it with a signed statement. | It cannot revoke the token at Anthropic. |
+| Remove a Claude sign-in | Archives the connection, so no run can use its token, and a running Claude stage stops at its next check. Custody then deletes the sealed token, keeps a tombstone and confirms it with a signed statement. | It cannot revoke the token at Anthropic. The removed connection cannot be signed in again. It does not touch the other Claude connections. |
+| Sign in again on a Claude connection | Replaces the connection's sealed token with a new one-year token. The connection, its agent profiles and its plan usage history stay. | The previous token is replaced, not securely overwritten. It cannot revoke the previous token at Anthropic. |
 | Uninstall the GitHub App at GitHub | The next grant check (normally within four minutes) marks the repository grants revoked and pauses affected runs. | It deletes nothing in BranchRunner or at GitHub. |
 
 Previews are not available in 1.0.0, so a 1.0.0 installation has no preview
@@ -133,9 +135,13 @@ provider service's RSA-OAEP-3072 enrollment key. That key is kept apart from the
 key files, and the key files are readable only by the service account (mode
 0600). **A Claude subscription sign-in** is a token valid for one year, kept
 sealed on the control-plane host under
-`/var/lib/branchrunner/claude-subscription-custody` until it is removed. Removal
-deletes that file and leaves a tombstone, so the connection cannot be enrolled
-again; add a new Claude subscription connection to sign in again.
+`/var/lib/branchrunner/claude-subscription-custody` until it is removed. Each
+Claude subscription connection has its own sealed token and its own signed
+custody records under `/var/lib/branchrunner/claude-subscription-native`, so
+an installation can hold several Claude accounts. **Sign in again** replaces
+the connection's token with the new one. Removal deletes only that
+connection's token and leaves a tombstone, so the removed connection cannot be
+signed in again; add a new Claude subscription connection to use Claude again.
 
 Removing either one does not revoke it at the provider. Also revoke an API key
 in the provider's console. BranchRunner cannot revoke a Claude token at

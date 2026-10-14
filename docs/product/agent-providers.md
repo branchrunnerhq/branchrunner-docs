@@ -80,19 +80,89 @@ only to the official CLI that BranchRunner runs. It carries no account email,
 organization or plan type, so the card identifies it only by a short
 fingerprint (`token …` and eight hex digits).
 
+The administrator who signed the connection in is its signing administrator.
+Only runs that they start can use the connection. A run that someone else
+starts is refused at its Claude session approval.
+
+An installation can hold several Claude subscription connections, each signed
+in to its own Claude account. Each connection keeps its own token and custody
+records, so signing in, verifying or removing one never changes another.
+
 The connection's details show "Long-lived token, valid until" and the date. In
 the last 30 days they add "Sign in again before" the date "to renew the token".
 A Claude session is refused with `sign_in_required` when the token would expire
 before the session's deadline plus 10 minutes. After the token expires, the
-connection reads **Needs attention** and **Verify** is no longer offered. To
-sign in again, choose **Remove sign-in**, add a new Claude subscription
-connection and sign in on it, then select the new connection in the agent
-profiles that used the old one.
+details say "The token expired on" the date, the connection reads **Needs
+attention** and **Verify** is no longer offered. Choose **Sign in again** to
+renew it.
 
 **Verify** checks that custody still holds the same token and that it works,
 using your current BranchRunner session; it asks for no new sign-in. Only the
-administrator who signed the connection in can verify it. A successful Verify
-also records the plan usage the CLI reports.
+signing administrator can verify the connection. A successful Verify also
+records the plan usage the CLI reports.
+
+A Claude subscription pass (Plan, Implement or a Review pass) runs until the
+first of these ends: the agent profile's time limit, the 15-minute session
+maximum, its session approval, or 10 minutes before the token expires. The
+worker must keep its lease for the whole pass. If the lease is lost, for
+example because the worker stopped or restarted, the pass is stopped.
+
+### Sign in again
+
+**Sign in again** renews a Claude subscription token in place. It runs the same
+link-and-code sign-in, and the CLI creates a new one-year token for the same
+connection. The connection, the agent profiles that use it and its plan usage
+history stay. BranchRunner no longer uses the previous token. You can sign in
+with a different Claude account.
+
+- Any provider administrator can sign in again, also after the token expired.
+  Like the first sign-in, it needs an authenticator sign-in to BranchRunner
+  within the last five minutes.
+- The administrator who signs in again becomes the connection's signing
+  administrator. From then on only runs that they start can use the
+  connection, and only they can verify it. The dialog says so before the
+  sign-in starts, and the audit record names the previous and the new signing
+  administrator.
+- It is refused while Claude operations on the connection are still running:
+  "Claude subscription operations on this connection are still running. Sign
+  in again after they settle." Wait until the Claude stages that use the
+  connection have finished or stopped, then try again.
+- If the new sign-in does not finish, the earlier sign-in stays unchanged.
+- It is not offered after the organization revoked provider credentials. Then
+  choose **Remove sign-in** and add a new Claude subscription connection.
+
+Signing in again does not revoke the previous token at Anthropic. See
+[remove a saved key or sign-in](#remove-a-saved-key-or-sign-in).
+
+### When a Claude subscription can run agents
+
+A Claude subscription card reads **Execution available** once the server can
+run agents with it. That needs all of these:
+
+- protected Claude execution is selected on the installation host;
+- the worker on the control-plane host is online and reports Claude execution;
+- the connection's latest sign-in was made for the connection as it is now,
+  the organization has not revoked it, and its token has not expired.
+
+Otherwise the card names the first thing to fix. Its details list each failed
+condition under **Agent execution**, with the one action that fixes it. The
+first-run checklist and **Coding agents** show the same text. Every run start
+checks these conditions again.
+
+The API reports the same causes in the connection's `executionBlockers`: at
+most one sign-in code, then at most one installation code. The list is empty
+exactly when `executionAvailable` is true.
+
+| Code | What the card says | What to do |
+| --- | --- | --- |
+| `custody_unreadable` | The server could not read the connection's sign-in records. | Reload the page. |
+| `not_signed_in` | No Claude account is signed in on the connection. | Choose **Sign in**. |
+| `credentials_revoked` | The organization revoked provider credentials after this account signed in. | Choose **Remove sign-in**, then add a new Claude subscription connection. |
+| `sign_in_outdated` | The sign-in was made for an earlier version of the connection. | Choose **Sign in again**. |
+| `token_expired` | The one-year token expired, so runs cannot use it. | Choose **Sign in again** to create a new token. |
+| `protected_claude_not_selected` | Protected Claude execution is not selected on the installation host. | The worker installer selects it once it has prepared the Claude runtime. If an owner opted out, run `sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh claude-protected` on the server. |
+| `claude_worker_offline` | No worker that runs Claude stages is online. | Install or restart the worker on the control-plane host as root: `sudo bash /opt/branchrunner/current/scripts/install.sh worker`. |
+| `claude_worker_capability_missing` | The worker on the control-plane host does not report Claude execution. It runs another release, or the protected Claude runtime is not answering it. | Run `sudo bash /opt/branchrunner/current/scripts/install.sh worker` on that host. |
 
 ## Codex API-key services
 
@@ -179,7 +249,9 @@ credential under **Integrations**:
 - **Remove sign-in** on a Claude subscription connection archives the
   connection, so no run can use the token and a running Claude stage stops at
   its next check. Custody then deletes the sealed token and keeps a tombstone.
-  To sign in again, add a new Claude subscription connection.
+  A removed connection cannot be signed in again; to use Claude again, add a
+  new Claude subscription connection. To replace only the token and keep the
+  connection, choose **Sign in again** instead.
 - **Remove sign-in** on a Codex subscription connection revokes the saved login
   and stops its active sessions.
 
@@ -221,11 +293,15 @@ earliest reset time.
 ## Plan usage
 
 The details of a Codex or Claude subscription connection show the plan-limit
-usage the provider reports, for example "5-hour: 62% used, resets 20:15" and the
-weekly window, a reached limit first, and when the figures were observed. Each
-sign-in, **Verify** and run records a new reading. A connection without a
-measurement shows "Not measured yet", never 0 %. An API-key connection has no
-plan windows.
+usage the provider reported: a reached limit first, then the 5-hour window, the
+weekly window and any other window, for example "5-hour: 62% used, resets
+20:15", and when the figures were observed. For Claude, the weekly window is
+the one the Claude Code CLI reports as `seven_day`. Each sign-in, **Verify** and
+run records a new reading.
+
+A connection without a reading shows "Not measured yet". A 5-hour or weekly
+window that the latest reading did not include shows "unknown". Neither is
+ever shown as 0 %. An API-key connection has no plan windows.
 
 ## Automatic failover
 
