@@ -33,9 +33,11 @@ the receiver storage supervisor.
   troubleshooting): the **Starting** state after a deploy, restart or upgrade,
   its named states, and how the managed Codex login row reads the standing
   verification instead of verifying on every refresh.
-- **Stage retry** (tasks and runs): **Retry stopped stages**, an Implement on a
-  Codex subscription that changed no files, and a Claude start refused before
-  any session ran.
+- **Stage retry** (tasks and runs): **Retry stopped stages**; the run's last
+  Implement that changed no files, when no earlier Implement changed any, fails
+  on every provider (Codex subscription, Claude subscription and API key;
+  product `00b46dcf`) and waits for a person to retry it; and a Claude start
+  refused before any session ran.
 - **Secret scan** (validation and approvals): what completion readiness scans,
   that only a policy match fails, the streamed scan of long lines and large
   JSON, unavailable content, and the 8 MiB and 24 MiB capture limits.

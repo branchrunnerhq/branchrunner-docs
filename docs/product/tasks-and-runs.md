@@ -91,14 +91,15 @@ The run console's controls depend on the stage:
 
 Unless [automatic failover](/docs/agent-providers#automatic-failover) moves it
 to another connection, a stage that failed or stopped waits for a person.
-Retry it in place under
-**Retry stopped stages** on the run page, with a reason and a recent
-authenticator sign-in; the retry keeps the published workflow, the exact source
-and the original attempt. For example, when the last Implement step on a Codex
-subscription changes no files, the stage reads "Failed · the step changed no
-files" instead of passing an empty change to Validate. A Claude stage whose
-session start was refused before any session ran fails with a reason that
-starts with `workflow_claude_start_failed_`, and can be retried the same way.
+Retry it in place under **Retry stopped stages** on the run page, with a reason
+and a recent authenticator sign-in; the retry keeps the published workflow, the
+exact source and the original attempt. For example, when the run's last
+Implement step changes no files and no earlier Implement step changed any, the
+stage reads "Failed · the step changed no files" instead of passing an empty
+change to Validate. This applies to Codex subscription, Claude subscription and
+API-key Implement steps alike. A Claude stage whose session start was refused
+before any session ran fails with a reason that starts with
+`workflow_claude_start_failed_`, and can be retried the same way.
 
 Or start a new run after a failed or rejected attempt. The prior run stays
 available, so reviewers can compare attempts and see why the next one exists.
