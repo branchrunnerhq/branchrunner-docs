@@ -1,6 +1,6 @@
 ---
 title: Validation and approvals
-description: How BranchRunner validates changes, reviews them independently, signs evidence, and opens a draft pull request after human approval.
+description: How BranchRunner validates changes, reviews them independently, signs evidence, and opens a pull request after human approval.
 group: Operating model
 order: 100
 ---
@@ -13,26 +13,58 @@ missing.
 
 ## Validation
 
-Validation runs in a hardened container on the worker, separate from the agent's
-workspace, with no network access.
+Validation runs in hardened containers on the worker, separate from the agent's
+workspace, with no network access. Every repository runs:
 
-- **Detected suite.** When a repository is imported, BranchRunner reads the
-  `build`, `typecheck`, `lint` and `test` scripts in its `package.json`. npm's
-  placeholder test script is ignored. Each detected script becomes a required
-  check that supplies the matching evidence class.
-- **Prepared dependencies.** The worker downloads only the tarballs pinned in
-  `package-lock.json` from `registry.npmjs.org` and verifies each one against its
-  lockfile integrity hash. It then runs `npm ci --offline --ignore-scripts` in a
-  container without network and mounts the result read-only for the checks.
-- **Baseline check.** Every repository also runs a repository-hygiene check:
-  JSON files must parse and no merge-conflict markers may remain.
-- **Owner adjustment.** The repository page's **Validation suite** panel shows
-  what was detected, the evidence each check supplies and what is still missing.
-  An owner can skip or restore a detected check, with a recorded reason.
+- **Baseline checks.** A repository-hygiene check (JSON files parse and no
+  merge-conflict markers remain) and a documentation check: every Markdown and
+  reStructuredText file is UTF-8 text, is not empty, has no merge-conflict
+  markers, and its relative links and images resolve.
+- **Detected suite.** For each supported project the worker finds at the
+  repository root, or at a root the repository's declaration names, it proposes
+  the checks below. Each becomes a required check that supplies the matching
+  evidence class.
+- **Dependency security.** A repository with prepared dependencies also runs
+  `dependency-audit`. It fails when the change adds a package, or moves one to
+  another version, that has a known advisory of high severity or above.
 
-Validation supports npm projects only in this release. A repository without a
-`package-lock.json`, one that uses npm workspaces, or one in another language
-gets only the hygiene check, and completion names every missing evidence class.
+| Ecosystem | Lockfile | Checks |
+| --- | --- | --- |
+| npm, including workspaces | `package-lock.json` version 2 or 3 | the `build`, `typecheck`, `lint` and `test` scripts |
+| pnpm 9 and 10, including workspaces | `pnpm-lock.yaml` version 9.0 | the same scripts |
+| Yarn classic, including workspaces | `yarn.lock` version 1 | the same scripts |
+| Zero-install Yarn Berry (Yarn 3 and 4, Plug'n'Play) | `yarn.lock` with the committed `.yarn/cache` and `.yarn/releases` | the same scripts |
+| Python, wheels only | hashed requirements files, `Pipfile.lock`, `uv.lock` or `poetry.lock` | `pytest` and `ruff` when the lockfile pins them; `mypy` when it is pinned and configured, otherwise a byte-compile check |
+| Go modules | `go.mod` and `go.sum` | `go build`, `go vet` and `go test` |
+
+- **Prepared dependencies.** The worker itself downloads every dependency,
+  only from admitted hosts and only when it matches the lockfile's hash, and
+  installs it in a container without network, with install scripts off. The
+  checks then run offline in a writable copy of the source that is discarded
+  afterwards. Node, pnpm, Yarn, CPython, uv and Go come from a toolchain catalog
+  sealed into the release. An organization owner can admit a private registry
+  or mirror under **Settings > Repositories > Validation preparation hosts**;
+  registries that need credentials are not supported.
+- **Declared checks and check services.** An owner can add up to 24 checks in
+  the repository's **Validation suite** panel or in
+  `.branchrunner/validation.yml`. A declared check can start up to four
+  disposable service containers, such as PostgreSQL, pinned by image digest.
+  A declaration applies only after an owner approves its exact contents with a
+  recent authenticator sign-in, and a change never validates itself with its
+  own edits. Services run on a private network with no internet access and are
+  removed after each check.
+- **Owner adjustment.** The **Validation suite** panel shows what was
+  detected, the evidence each check supplies and what is still missing. An
+  owner can turn a detected check off, with a recorded reason.
+
+A project BranchRunner recognises but cannot prepare is listed with its reason
+and is never skipped as passed: Cargo, Maven, Gradle, NuGet, Bundler, Composer,
+Bun, Deno, `pdm.lock`, Go workspaces (`go.work`), pnpm 11 and later, Yarn Berry
+without a committed cache, Python requirements without hashes, and npm
+lockfile version 1. Python installs wheels only. A check that downloads
+anything at run time fails, and Dockerfiles are not built. A repository with no
+supported project runs only the baseline checks, so only a documentation-only
+change can complete there, and completion names every missing evidence class.
 
 ## Independent review
 
@@ -106,22 +138,27 @@ review, which binds the decision to the sealed evidence. It needs a recent
 sign-in with your authenticator. Delivery stays a separate decision from
 implementation completion.
 
-## Draft pull requests
+## Pull requests
 
-Each attached repository has a draft pull request policy. By default drafts are
-enabled and may target only the repository's default branch. The repository
-page's **Draft pull requests** panel shows the policy and anything that blocks
-publication, such as a missing GitHub App permission.
+Each attached repository has a pull request policy: whether pull requests are
+allowed, whether they open as a draft or ready for review, and which base
+branches they may target. Attaching a repository creates the default: pull
+requests to the default branch only, opened as drafts, or ready for review for
+a private repository owned by a personal GitHub account, where GitHub offers no
+drafts. The repository page's **Pull requests** panel shows the policy and
+anything that blocks publication, such as a missing GitHub App permission, and
+an owner can change it there with a reason.
 
-After approval, BranchRunner opens a draft pull request through the GitHub App.
-It has no merge or deploy capability. The installer turns trusted publication on
-by default; `--no-publication` keeps it off.
+After approval, BranchRunner opens one pull request of the policy's type
+through the GitHub App; the completion review names that type before you
+approve. It has no merge or deploy capability. The installer turns trusted
+publication on by default; `--no-publication` keeps it off.
 
 ## Cancelling a publication
 
 If you cancel a publication, BranchRunner stops further repository-host effects.
-The task branch and draft pull request stay unchanged. The completion review
-page shows what was left there, with warnings if the branch moved or the pull
+The task branch and pull request stay unchanged. The completion review page
+shows what was left there, with warnings if the branch moved or a draft pull
 request left draft state, and the steps to remove them yourself.
 
 Publication cancellation is supported but not yet live-verified; see

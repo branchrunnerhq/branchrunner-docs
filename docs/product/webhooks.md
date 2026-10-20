@@ -13,7 +13,7 @@ that depend on them.
 ## GitHub webhooks
 
 The installation receives `push` and `pull_request` webhooks from its own GitHub
-App to keep branches and draft pull requests reconciled. Repository grants do
+App to keep branches and pull requests reconciled. Repository grants do
 not depend on webhooks: BranchRunner rechecks the App's repository access every
 4 minutes. The SCM service sets the App's webhook secret itself and verifies
 each delivery. You do not configure these webhooks by hand.

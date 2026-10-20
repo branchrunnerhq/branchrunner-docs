@@ -44,7 +44,7 @@ runs, or **Starting**:
 A run is one execution attempt through the six workflow stages. It records
 workspace identity, stage attempts and the provider connection each stage used,
 tool decisions, validation, review findings, cost and delivery status. The run
-console shows live progress and links the draft pull request once it exists.
+console shows live progress and links the pull request once it exists.
 
 The top of the run page shows the run's own workflow stages in their published
 order: Plan, each Implement step, Validate, Independent review, Approval and
@@ -57,6 +57,20 @@ admission**, **Running · attempt 2**, **Awaiting completion decision**,
 node ID, attempt and source, worker, measured turn duration, retained reason and
 exact state. A cancelled run keeps the outcomes it reached before the
 cancellation.
+
+Every other place that names a run's stage reads the same records: the
+organization and repository run lists, active runs on the home page, the
+repository overview and assistant, run comparison, the task workbench's
+attempts and **Stage**, and the work item page. They name the stage or stages
+the run is at,
+otherwise the last stage it reached, or "Not started". A run whose stage
+records cannot be read exactly reads "Stage unavailable" there; the lists still
+load. **Elapsed** is the wall-clock time from the run's start to now while it
+is open, or to its end once it finished, failed or was cancelled.
+
+The run's workspace page names the stages that ran in it, for example
+"Provisioned and idle. Its run’s Plan, Implement and Validate stages ran in
+it.", or "In use by its run’s Validate stage." while a stage runs there.
 
 The run console's controls depend on the stage:
 

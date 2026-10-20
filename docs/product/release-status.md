@@ -107,17 +107,21 @@ and model providers are not part of this release.
   tokens would cost at API list price and what the work actually cost under
   your subscription fee or API discount.
 - **Six-stage workflows.** Plan → Implement → Validate → Independent review →
-  Approval → Handoff, which opens a draft pull request. See
+  Approval → Handoff, which opens a pull request. See
   [workflows](/docs/workflows).
-- **Validation.** BranchRunner detects a repository's npm `build`, `typecheck`,
-  `lint` and `test` scripts and runs them offline in a hardened validation
-  container. See [validation and approvals](/docs/validation-and-approvals).
+- **Validation.** BranchRunner detects npm, pnpm, Yarn, Python and Go projects,
+  prepares their locked dependencies itself and runs their build, type-check,
+  lint and test checks offline in hardened validation containers, with a
+  dependency security check. An owner can add declared checks, including
+  disposable services such as PostgreSQL. See
+  [validation and approvals](/docs/validation-and-approvals#validation).
 - **Independent review and signed evidence.** A separate reviewer, a
   subscription or an API-key connection, evaluates the change against the
   requirements, and the installation signs completion, evidence and review
   records with its own keys.
-- **Draft pull requests through the GitHub App.** After a person approves the
-  completion review, BranchRunner opens a draft pull request. It has no merge or
+- **Pull requests through the GitHub App.** After a person approves the
+  completion review, BranchRunner opens a pull request, as a draft or ready for
+  review as the repository's policy sets. It has no merge or
   deploy capability.
 - **Built-in custody and retention.** Signing, handover and retention keys are
   created on your server; no external Vault is required. Automatic deletion of
@@ -132,9 +136,12 @@ and model providers are not part of this release.
 - **Three platforms, amd64 only.** arm64, Debian 12, Ubuntu 22.04 and every
   other platform are not supported in 1.0.0; the installers refuse them before
   anything is installed.
-- **Validation supports npm projects only.** It needs a `package-lock.json` and
-  does not support npm workspaces. Other repositories get only the baseline
-  repository-hygiene check, and completion names the missing evidence.
+- **Validation covers the listed ecosystems only.** Cargo, Maven, Gradle,
+  NuGet, Bundler, Composer, Bun, Deno, `pdm.lock`, Go workspaces, pnpm 11 and
+  later, and Yarn Berry without a committed cache are reported as unsupported.
+  Python installs wheels only, and registries that need credentials are not
+  supported. A repository with no supported project gets only the baseline
+  checks, and completion names the missing evidence.
 - **Every run needs two providers and a human reviewer.** Every change is
   reviewed as Critical in 1.0.0, so the reviewer must come from a different
   provider and model family than every Implement step, and a qualified person
@@ -180,7 +187,7 @@ that operating system and architecture:
    setup and worker identity were checked; and
 2. each run that the row names finished the complete repository or issue →
    agent → validation and repair → independent review → human approval →
-   draft pull request path on that host, with its evidence retained.
+   pull request path on that host, with its evidence retained.
 
 Fixtures and local tests do not count as live verification. A healthy web page,
 saved login, workflow draft or unit test is not evidence of that path.

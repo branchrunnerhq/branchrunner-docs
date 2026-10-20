@@ -16,7 +16,7 @@ limitations.
 BranchRunner is a development control plane for turning specified work into
 reviewed changes. It coordinates tasks, isolated workspaces, coding agents,
 validation, independent review, signed evidence and explicit human approvals.
-Its only delivery is a draft pull request. It never merges or deploys.
+Its only delivery is a pull request. It never merges or deploys.
 
 It does not replace your Git host, CI system, model provider or engineering
 judgment. It connects them through workflows whose state stays inspectable.
@@ -29,7 +29,7 @@ judgment. It connects them through workflows whose state stays inspectable.
 - An **agent profile** names a coding agent, its prompt, instructions and limits,
   and an ordered list of provider connections.
 - A **workflow** runs six stages: Plan, Implement, Validate, Independent review,
-  Approval and Handoff (a draft pull request).
+  Approval and Handoff (a pull request).
 - **Evidence** connects changes, validation and reviews to requirements. It is
   signed by the installation.
 

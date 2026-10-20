@@ -1,6 +1,6 @@
 ---
 title: Quickstart
-description: Install a self-hosted BranchRunner server and worker, connect GitHub and coding agents from two providers, and run the first task to a draft pull request.
+description: Install a self-hosted BranchRunner server and worker, connect GitHub and coding agents from two providers, and run the first task to a pull request.
 group: Start here
 order: 20
 ---
@@ -208,7 +208,9 @@ anything that still blocks it, with the exact reason. If the workflow's Plan
 stage waits for human plan approval, approve the plan in the run console; the
 starter template continues by itself once the plan is recorded. Follow the run
 in its console, and open the completion review. When you approve publication
-there, BranchRunner opens a draft pull request through the GitHub App. It never
+there, BranchRunner opens a pull request through the GitHub App, as a draft
+or ready for review as the repository's pull request policy sets; see
+[pull requests](/docs/validation-and-approvals#pull-requests). It never
 merges or deploys.
 
 Next, read [workflows](/docs/workflows) and

@@ -117,8 +117,12 @@ before retrying. A retry should not erase the first failure.
   (`journalctl -u branchrunner-worker.service`) names each cause before the
   line `worker main finished (exit 75)`. Resolve it, then rerun the installer.
 - **Validation failed:** reproduce the exact command inside the preserved
-  workspace. If only the hygiene check ran, the repository has no supported npm
-  suite; see [validation and approvals](/docs/validation-and-approvals).
-- **Delivery blocked:** the repository's **Draft pull requests** panel lists
+  workspace. If only the baseline checks ran, the repository has no supported
+  project; the **Validation suite** panel names each project it found and why it
+  was not prepared, and an owner can add checks with an approved declaration.
+  A check that is incomplete with a `validation_preparation_<reason>` code
+  could not prepare its dependencies. See
+  [validation and approvals](/docs/validation-and-approvals#validation).
+- **Delivery blocked:** the repository's **Pull requests** panel lists
   what blocks publication, such as a missing GitHub App permission or a base
   branch the policy does not allow. The workspace and evidence remain available.

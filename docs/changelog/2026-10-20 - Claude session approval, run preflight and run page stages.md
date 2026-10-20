@@ -2,7 +2,7 @@
 
 The product pages now describe the run behaviour that changed during the DIR-1
 golden-path runs of 2026-10-19 and 2026-10-20. Verified against the product
-repository at `6a673c3b` (`main`): its changelog entries of those two days, the
+repository at `6a673c3b` (`main`), and at `1d71c7f5` for the run lists: its changelog entries of those two days, the
 run page and preflight web source, the Claude session approval routes and
 approval decision rules, the Claude source keeper, the worker shutdown path and
 the receiver storage supervisor.
@@ -23,7 +23,12 @@ the receiver storage supervisor.
   every 15 seconds and restarts the Claude native services only while idle. No
   operator step; the keeper's journal line is shown.
 - **Run page stages** (tasks and runs): the run page shows the run's own
-  workflow stages in published order with their durable states.
+  workflow stages in published order with their durable states. Run lists,
+  the home page's active runs, the repository overview and assistant, run
+  comparison, the task workbench and the work item page name the same stage,
+  or "Stage unavailable" when its records cannot be read exactly (product
+  `1d71c7f5`). **Elapsed** is wall-clock time from start to now, or to the
+  run's end, and the workspace page names the stages that ran in it.
 - **Run preflight** (tasks and runs, readiness reason codes, upgrade,
   troubleshooting): the **Starting** state after a deploy, restart or upgrade,
   its named states, and how the managed Codex login row reads the standing

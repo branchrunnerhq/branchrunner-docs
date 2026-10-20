@@ -39,8 +39,9 @@ select explicitly. Include these keys in your backups; see
 ## Permission layers
 
 - The GitHub App's repository selection and permissions control which source
-  BranchRunner may read and where it may open draft pull requests.
-- Each repository's draft pull request policy limits the allowed base branches.
+  BranchRunner may read and where it may open pull requests.
+- Each repository's pull request policy limits the allowed base branches and
+  sets whether pull requests open as drafts or ready for review.
 - Organization roles control who may configure repositories, providers and
   workflows, and who may approve.
 - Agent profiles request tool classes within installed platform limits.

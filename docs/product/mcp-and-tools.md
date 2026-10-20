@@ -21,13 +21,13 @@ delivered to runs yet, so a profile that selects them cannot run.
 ## Destructive actions
 
 BranchRunner has no merge or deploy capability. Externally visible repository
-changes happen only through a draft pull request after human approval in the
+changes happen only through a pull request after human approval in the
 completion review. A denied request is evidence: the run records the request,
 the decision and the next action.
 
 ## Network access
 
 Protected agent containers reach their provider through BranchRunner's egress
-controls. Validation checks run without network access; their npm dependencies
-are downloaded beforehand by the worker, only from `registry.npmjs.org` and only
-as pinned in the lockfile.
+controls. Validation checks run without network access; their dependencies
+are downloaded beforehand by the worker, only from admitted hosts and only as
+pinned in the lockfile.

@@ -25,7 +25,8 @@ A BranchRunner workflow runs six stages in order:
    [review requirements for every run](/docs/validation-and-approvals#review-requirements-for-every-run).
 5. **Approval** is the human decision in the completion review, bound to the
    sealed evidence.
-6. **Handoff** opens a draft pull request through the installation's GitHub App.
+6. **Handoff** opens a pull request through the installation's GitHub App, as
+   a draft or ready for review as the repository's pull request policy sets.
    BranchRunner never merges or deploys.
 
 ## Configure and publish
