@@ -33,15 +33,34 @@ cannot be used.
 
 ### Receiver storage
 
-Runs also need receiver storage on their worker host. A run's source handover,
-source repair and Claude source export use it. The worker creates it when a run
-first needs it: a fully allocated 64 GB image under
-`/var/lib/branchrunner-receiver-storage`. It creates the image only when
-`/var/lib` is an ext4 filesystem with 64 GB plus 24 GiB free, about 90 GB, and
-it keeps 24 GiB free beside it. The image stays while runs on that worker use
-it, and is removed once none does. Below that free space, the run steps that
-need receiver storage cannot proceed. Plan this space in addition to what the
-installation itself uses.
+Every host that runs a worker also needs receiver storage. That includes the
+control-plane host when the server installer continues into its same-host
+worker. The first run on the host that hands its source over, repairs it or
+exports Claude source makes the worker allocate a fully allocated 64 GB image
+under `/var/lib/branchrunner-receiver-storage`. So `/var/lib` must be:
+
+- on an ext4 filesystem with 4096-byte blocks;
+- on a local disk, not a loop or virtual device, of at least 89.8 GB;
+- with at least 89.8 GB available: the 64 GB image plus a 24 GiB reserve.
+
+A host whose image is already allocated needs only the 24 GiB reserve free
+beside it. The image is removed once no run on that worker uses it.
+
+Both installers check this before they stop or change any service, and no
+option skips the check. A host that does not meet it is refused with one
+sentence that names the filesystem, the bytes needed and available, the path
+and what to do, and with its code; see
+[receiver storage](/docs/readiness-reasons#receiver-storage) for the codes.
+Nothing is stopped or changed. On a control-plane host that cannot hold it,
+rerun the server installer with `--no-worker` to install only the control
+plane, and install the worker on a host that meets the requirement.
+
+After installation the worker's receiver storage service measures the same
+again every 30 seconds. When it no longer fits, for example because the disk
+filled up, **Runtime workers** shows a **Receiver storage** line on that worker,
+the task's run preflight blocks its **Worker capacity** row with
+`receiver_storage_<code>`, and run start skips that worker. Free the space it
+names, and the refusal clears within about a minute.
 
 ## Install the worker
 

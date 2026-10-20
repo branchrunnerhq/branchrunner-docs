@@ -29,8 +29,10 @@ Install 1.0.0 on a clean host instead.
    Run the new release's worker command on every worker on another host. The
    server installer prints it, and **Runtime workers > Add a worker** shows it.
    The worker channel refuses a control plane and worker with different
-   protocol versions. Each worker installer stops the running worker and
-   requires a clean drain. If the worker could not settle everything, the
+   protocol versions. Before it changes anything, each installer that installs
+   a worker checks [receiver storage](/docs/runtime-workers#receiver-storage);
+   a host whose image is already allocated needs only its 24 GiB reserve free.
+   Each worker installer stops the running worker and requires a clean drain. If the worker could not settle everything, the
    installer stops with "The worker stopped without a clean drain"; the worker
    journal names each cause (see
    [readiness reason codes](/docs/readiness-reasons#worker-journal)). Resolve

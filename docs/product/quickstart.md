@@ -24,8 +24,11 @@ You need:
   16 GB RAM and 4 CPU cores are recommended. The installer refuses a smaller
   host before it installs anything. Below 16 GB it builds the protected agent
   images two at a time instead of four, and below the recommended size the
-  host may hold only one run at a time. Runs need about 90 GB more free disk
-  for [receiver storage](/docs/runtime-workers#receiver-storage);
+  host may hold only one run at a time. Because the worker runs on this
+  server too, `/var/lib` must also be on ext4 on a local disk with 4096-byte
+  blocks and at least 89.8 GB available for
+  [receiver storage](/docs/runtime-workers#receiver-storage). The installer
+  checks this before it changes anything;
 - a public DNS name for that server, with TCP 80 and 443 reachable;
 - an open SSH session to the server while the installer runs;
 - a GitHub account or organization that owns the repositories to work on;

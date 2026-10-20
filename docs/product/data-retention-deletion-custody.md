@@ -223,10 +223,13 @@ own tools.
   worker reports `disk_space` failed and runs no workloads. Destroy workspaces of
   finished runs and remove Docker images that no container uses.
 - **Receiver storage.** The worker creates its 64 GB receiver storage image
-  only while 64 GB plus 24 GiB is free on `/var/lib`, and keeps 24 GiB free
-  beside it. Below that, a run's source handover, source repair and Claude
-  source export cannot proceed until space is freed. See
-  [receiver storage](/docs/runtime-workers#receiver-storage).
+  only while 64 GB plus 24 GiB is available on `/var/lib`, and keeps the
+  24 GiB reserve free beside it. It measures this every 30 seconds. Below it,
+  **Runtime workers** shows a **Receiver storage** line on that worker, the
+  task's run preflight blocks **Worker capacity** with
+  `receiver_storage_<code>`, and run start skips that worker. Free the space the
+  line names; the refusal clears within about a minute. See
+  [receiver storage](/docs/readiness-reasons#receiver-storage).
 
 ## Recovery and backups
 

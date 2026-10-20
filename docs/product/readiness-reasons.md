@@ -204,6 +204,52 @@ Source: `server/src/handoverCustody/serviceMain.ts`,
 Source: `packages/worker/src/main.ts`, `phase6ProductionComposition.ts`,
 `isolatedArchiveRuntime.ts` and `dockerArchiveBoundaryCanary.ts`.
 
+## Receiver storage
+
+The installers' receiver storage check and the worker's receiver storage
+service measure the filesystem that holds
+`/var/lib/branchrunner-receiver-storage` with the same rules; see
+[receiver storage](/docs/runtime-workers#receiver-storage). An installer prints
+`Receiver storage check refused (<code>): <sentence>`. After installation the
+task's run preflight blocks **Worker capacity** with `receiver_storage_<code>`,
+and **Runtime workers** shows the sentence on a **Receiver storage** line.
+
+| Code | Meaning | What to do |
+| --- | --- | --- |
+| `host_filesystem_not_ext4` | `/var/lib` is not on ext4. | Put `/var/lib` on an ext4 filesystem with at least 89.8 GB free. |
+| `host_device_not_block` | `/var/lib` is on a loop or virtual device. | Put `/var/lib` on a local ext4 disk. |
+| `host_device_too_small` | The disk under `/var/lib` is smaller than 89.8 GB. | Give `/var/lib` a larger disk. |
+| `host_block_size_unsupported` | The ext4 filesystem does not use 4096-byte blocks. | Put `/var/lib` on an ext4 filesystem with 4096-byte blocks. |
+| `host_space_insufficient` | Less than 89.8 GB is available for the image and its reserve. | Free the bytes the sentence names, or give `/var/lib` a larger disk. |
+| `host_space_below_floor` | The image is allocated, but less than its 24 GiB reserve is free beside it. | Free the bytes the sentence names. |
+| `backing_image_unknown` | `/var/lib/branchrunner-receiver-storage/storage.img` is a file receiver storage did not make. | Move that file out of the directory. |
+| `backing_path_redirected` | A path to `/var/lib/branchrunner-receiver-storage` is a symbolic link or a file. | Make it a directory on a local ext4 disk. |
+
+The service re-measures every 30 seconds and writes its verdict to
+`/var/lib/branchrunner-receiver-view/capacity.json`; a refusal clears within
+about a minute after you free the space. To read it, or to run the installers'
+check by hand:
+
+```bash
+# The latest measurement, on any worker host.
+sudo cat /var/lib/branchrunner-receiver-view/capacity.json
+
+# The installers' check, on the control-plane host.
+sudo python3 -I -B /opt/branchrunner/current/infra/deploy/receiver-storage-check.py
+
+# The same check on a worker on another host, installed from a published
+# release. <archive> is the first 16 hex digits of the release's source archive
+# SHA-256; `sudo ls /srv/branchrunner-worker/releases` lists them.
+sudo python3 -I -B /srv/branchrunner-worker/releases/<archive>/app/infra/deploy/receiver-storage-check.py
+```
+
+The check prints one line, `<code> <sentence>`, and changes nothing. It exits 0
+for `ready`, 1 for a named refusal and 2 when it could not measure.
+
+Source: `infra/deploy/receiver-storage.py`,
+`infra/deploy/receiver-storage-check.py` and
+`packages/contracts/src/api/receiverStorageCapacity.ts`.
+
 ## Run preflight
 
 A task's run preflight reports a protected Codex or Claude route that its

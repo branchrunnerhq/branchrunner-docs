@@ -112,6 +112,20 @@ before retrying. A retry should not erase the first failure.
   protected Codex and Claude rows read **Starting** with a named state until
   their runtimes have attested and published again. They turn **Ready** by
   themselves. See [run preflight](/docs/readiness-reasons#run-preflight).
+- **Installer refused at the receiver storage check:** the installer stops
+  with "receiver storage check refused (`<code>`)" and one sentence that names
+  the filesystem, the bytes needed and available, the path and what to do.
+  Nothing was stopped or changed, and no option skips the check. Fix what the
+  sentence names, then rerun. A server that cannot hold receiver storage can
+  run only the control plane: rerun the server installer with `--no-worker`,
+  and install the worker on a host that meets the requirement. See
+  [receiver storage](/docs/runtime-workers#receiver-storage).
+- **Worker capacity blocked with `receiver_storage_<code>`:** the worker's
+  receiver storage no longer fits, usually because its disk filled up. The
+  worker's **Receiver storage** line under **Runtime workers** names what to
+  free. Run start skips that worker until it fits again, within about a minute
+  of freeing the space. See
+  [readiness reason codes](/docs/readiness-reasons#receiver-storage).
 - **Upgrade refused with "The worker stopped without a clean drain":** the
   worker did not settle everything when it stopped. Its journal
   (`journalctl -u branchrunner-worker.service`) names each cause before the
