@@ -222,6 +222,11 @@ own tools.
 - **Worker workspace disk.** Below 20 GiB or 100,000 free inodes at startup, the
   worker reports `disk_space` failed and runs no workloads. Destroy workspaces of
   finished runs and remove Docker images that no container uses.
+- **Receiver storage.** The worker creates its 64 GB receiver storage image
+  only while 64 GB plus 24 GiB is free on `/var/lib`, and keeps 24 GiB free
+  beside it. Below that, a run's source handover, source repair and Claude
+  source export cannot proceed until space is freed. See
+  [receiver storage](/docs/runtime-workers#receiver-storage).
 
 ## Recovery and backups
 

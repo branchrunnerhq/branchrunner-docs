@@ -24,7 +24,8 @@ You need:
   16 GB RAM and 4 CPU cores are recommended. The installer refuses a smaller
   host before it installs anything. Below 16 GB it builds the protected agent
   images two at a time instead of four, and below the recommended size the
-  host may hold only one run at a time;
+  host may hold only one run at a time. Runs need about 90 GB more free disk
+  for [receiver storage](/docs/runtime-workers#receiver-storage);
 - a public DNS name for that server, with TCP 80 and 443 reachable;
 - an open SSH session to the server while the installer runs;
 - a GitHub account or organization that owns the repositories to work on;
@@ -195,11 +196,20 @@ credential approval for that run, in the run console. By default one person
 gives it; an owner can require a second approver under **Settings → API-key
 credential approval**.
 
-Then start a run from the task. The run-start check lists anything that still
-blocks it, with the exact reason. Approve the plan, follow the run in its
-console, and open the completion review. When you approve publication there,
-BranchRunner opens a draft pull request through the GitHub App. It never merges
-or deploys.
+A run that uses a Claude subscription also needs a session approval for each
+Claude stage, on the run page: the person who started the run requests it, and
+an owner or administrator approves it. With a Codex planner and implementer and
+a Claude reviewer, that is two approvals during Review, one for each review
+pass. See
+[Claude session approval](/docs/agent-providers#claude-session-approval).
+
+Then start a run from the task. The run preflight and the run-start check list
+anything that still blocks it, with the exact reason. If the workflow's Plan
+stage waits for human plan approval, approve the plan in the run console; the
+starter template continues by itself once the plan is recorded. Follow the run
+in its console, and open the completion review. When you approve publication
+there, BranchRunner opens a draft pull request through the GitHub App. It never
+merges or deploys.
 
 Next, read [workflows](/docs/workflows) and
 [validation and approvals](/docs/validation-and-approvals).

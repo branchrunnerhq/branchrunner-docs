@@ -51,6 +51,12 @@ select explicitly. Include these keys in your backups; see
   for that run in the run console. By default the person who asks can approve
   it with a recent authenticator sign-in; an owner can require a different
   person under **Settings → API-key credential approval**.
+- A run step that uses a Claude subscription starts only after its session is
+  approved on the run page: the person who started the run requests it, and an
+  owner or administrator approves it with an authenticator sign-in from the
+  last five minutes. Each approval covers one stage, or one Review pass, at its
+  exact source. See
+  [Claude session approval](/docs/agent-providers#claude-session-approval).
 
 ## Rotation
 

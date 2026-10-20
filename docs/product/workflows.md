@@ -8,8 +8,11 @@ order: 80
 
 A BranchRunner workflow runs six stages in order:
 
-1. **Plan** proposes how the requirements will be met. A person approves the
-   plan before implementation starts.
+1. **Plan** proposes how the requirements will be met. Its **Plan approval**
+   setting decides what follows: **Wait for human plan approval** holds the run
+   until a person approves the plan in the run console, and **Continue after
+   plan is recorded** goes on by itself. The starter template continues by
+   itself.
 2. **Implement** makes the change in the run's workspace.
 3. **Validate** runs the repository's checks in a hardened validation container
    and returns failures to implementation for repair.

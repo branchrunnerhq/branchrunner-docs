@@ -29,7 +29,12 @@ Install 1.0.0 on a clean host instead.
    Run the new release's worker command on every worker on another host. The
    server installer prints it, and **Runtime workers > Add a worker** shows it.
    The worker channel refuses a control plane and worker with different
-   protocol versions.
+   protocol versions. Each worker installer stops the running worker and
+   requires a clean drain. If the worker could not settle everything, the
+   installer stops with "The worker stopped without a clean drain"; the worker
+   journal names each cause (see
+   [readiness reason codes](/docs/readiness-reasons#worker-journal)). Resolve
+   it, then rerun the same command.
 4. Check **Runtime workers** for activation and signing status. On the
    control-plane host, a runtime identity whose only change is images built
    from the new release is admitted automatically. If a worker reports any
@@ -50,6 +55,10 @@ approves a review signing successor on **Home** and evidence signing under
 
 Subscription connections survive upgrades: a Codex login and a Claude
 subscription token stay signed in, and **Verify** works without a new sign-in.
+Repositories stay registered for Claude. Right after the upgrade, a task's run
+preflight shows the protected Codex and Claude rows as **Starting** with a
+named state until their runtimes have attested and published again; they turn
+**Ready** by themselves. See [run preflight](/docs/tasks-and-runs#run-preflight).
 A browser page that is open during the upgrade shows "This page was updated"
 and reloads itself after three seconds.
 

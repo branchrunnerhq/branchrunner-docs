@@ -31,6 +31,18 @@ enforcing, Docker Engine 24 or newer, at least 20 GiB of free disk and 100,000
 free inodes, and a clock within 5 seconds of the control plane. Docker Desktop
 cannot be used.
 
+### Receiver storage
+
+Runs also need receiver storage on their worker host. A run's source handover,
+source repair and Claude source export use it. The worker creates it when a run
+first needs it: a fully allocated 64 GB image under
+`/var/lib/branchrunner-receiver-storage`. It creates the image only when
+`/var/lib` is an ext4 filesystem with 64 GB plus 24 GiB free, about 90 GB, and
+it keeps 24 GiB free beside it. The image stays while runs on that worker use
+it, and is removed once none does. Below that free space, the run steps that
+need receiver storage cannot proceed. Plan this space in addition to what the
+installation itself uses.
+
 ## Install the worker
 
 The worker installs exactly the source the control plane runs. On a server

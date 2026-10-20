@@ -82,7 +82,8 @@ fingerprint (`token …` and eight hex digits).
 
 The administrator who signed the connection in is its signing administrator.
 Only runs that they start can use the connection. A run that someone else
-starts is refused at its Claude session approval.
+starts is refused when it requests its
+[Claude session approval](#claude-session-approval).
 
 An installation can hold several Claude subscription connections, each signed
 in to its own Claude account. Each connection keeps its own token and custody
@@ -101,11 +102,44 @@ using your current BranchRunner session; it asks for no new sign-in. Only the
 signing administrator can verify the connection. A successful Verify also
 records the plan usage the CLI reports.
 
-A Claude subscription pass (Plan, Implement or a Review pass) runs until the
-first of these ends: the agent profile's time limit, the 15-minute session
-maximum, its session approval, or 10 minutes before the token expires. The
-worker must keep its lease for the whole pass. If the lease is lost, for
-example because the worker stopped or restarted, the pass is stopped.
+A Claude subscription pass (Plan, Implement or a Review pass) starts only with
+an approved [Claude session approval](#claude-session-approval). It then runs
+until the first of these ends: the agent profile's time limit, the 15-minute
+session maximum, or 10 minutes before the token expires. The approval's
+decision window may end first; a pass that has started keeps running.
+Cancelling the run, or withdrawing the approval with the API's approval revoke
+route, stops the pass. The worker must keep its lease for the whole pass. If
+the lease is lost, for example because the worker stopped or restarted, the
+pass is stopped, and the stage fails and waits for a person to retry it.
+
+### Claude session approval
+
+A saved sign-in never starts a Claude session by itself. Each Claude
+subscription stage needs its own human session approval: Plan, each Implement,
+and each of the two Review passes (the independent review and the
+reconciliation review).
+
+1. When a Claude stage is ready to start, the run page shows **Claude
+   subscription · session approval** with the stage, its stage intent and its
+   source commit. The stage waits there. While it waits, BranchRunner does not
+   use the Claude plan.
+2. The person who started the run enters a **Reason for this session** and
+   chooses **Request Claude session approval**. Only that person can request
+   it, and only when they are the connection's signing administrator. The
+   request is a secret-access approval to reuse the connection's token for this
+   one stage or Review pass. It is bound to the stage's exact source commit and
+   tree and to the run's current workspace lease.
+3. An organization owner or administrator approves it in the same panel. This
+   needs a sign-in with their authenticator from the last five minutes;
+   otherwise BranchRunner asks them to sign in again. The person who requested
+   it can approve it when they are an owner or administrator.
+
+The panel shows the decision deadline: 15 minutes after the request, or
+earlier, so that it ends at least 10 minutes before the token expires. The
+approval must still be within that deadline when the stage starts its session.
+If the request expires, is rejected or is withdrawn before the session starts,
+choose **Request fresh Claude session approval** and decide the new request.
+The earlier request stays on record.
 
 ### Sign in again
 
@@ -148,6 +182,24 @@ Otherwise the card names the first thing to fix. Its details list each failed
 condition under **Agent execution**, with the one action that fixes it. The
 first-run checklist and **Coding agents** show the same text. Every run start
 checks these conditions again.
+
+A Claude session also runs only on a repository that is registered for Claude
+on the control-plane host. You do nothing for this. While protected Claude is
+selected, a source keeper runs every 15 seconds. It registers each repository
+whose source was imported for a workspace on that host's worker, and keeps its
+copy current. When it registers a new repository it restarts the Claude native
+services, but only while no Claude session, sign-in or **Verify** is running;
+otherwise it waits for the next tick. Upgrades keep every registration. To see
+its last result on the server:
+
+```bash
+sudo journalctl -u branchrunner-claude-subscription-source-keeper.service -n 1 -o cat
+```
+
+`"status":"synced"` gives the number of registered repositories.
+`"status":"deferred"` with `native_operations_open` means it waits for running
+Claude operations to finish, and with `installer_running` that it waits for an
+installer.
 
 The API reports the same causes in the connection's `executionBlockers`: at
 most one sign-in code, then at most one installation code. The list is empty

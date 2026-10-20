@@ -196,11 +196,52 @@ Source: `server/src/handoverCustody/serviceMain.ts`,
 | `Installed API execution family is unavailable (api_plan_setup_<step>_<cause>)` | API execution setup failed at that step. | Rerun the worker installer. |
 | `Installed Claude execution family is inactive (not_selected).` | Protected Claude is not selected on this host. On the control-plane host the worker installer selects it automatically once it has prepared the Claude runtime, unless an owner recorded the opt-out with `none`. | Rerun the worker installer, or select it by hand: `sudo bash /opt/branchrunner/current/infra/deploy/branchrunner-configure-execution.sh claude-protected`. |
 | `Installed Claude execution family is unavailable (claude_<step>_<cause>)` | Protected Claude could not start. | Rerun the worker installer, which selects Claude again. If the subscription's token expired, choose **Sign in again** on its connection. |
+| `worker main finished (exit <N>)` | The last line of a worker stop. Exit 0 is a clean drain. Exit 75 means something was not settled, and the error lines before it name it: executed command results not settled, agent containers not confirmed stopped, `Installed API and source owners did not settle during SIGTERM: <codes>` (codes such as `api_close_plan_<cause>` or `source_owner_close_<cause>`), API source resources under a retained lease that did not settle, or a source-host custody shutdown failure. | Resolve what those lines name. An upgrade refuses such a stop with "The worker stopped without a clean drain"; rerun the installer afterwards. |
+| `Shutdown step <name> took <n> ms.` | A shutdown step after the run loop took longer than 2 seconds. | Nothing, unless the stop exceeds its timeout. |
 | `... failed its readiness probe (runtime_unavailable: archive_docker_daemon_unavailable)` | Docker is not answering the archive probe. | Check `systemctl status docker`. |
 | `... failed its readiness probe (runtime_unavailable: archive_boundary_archive_canary_<cause>)` | The archive isolation canary failed. | A `report_deadline` points to an overloaded host; profile or identity causes mean the worker installer should be rerun. |
 
 Source: `packages/worker/src/main.ts`, `phase6ProductionComposition.ts`,
 `isolatedArchiveRuntime.ts` and `dockerArchiveBoundaryCanary.ts`.
+
+## Run preflight
+
+A task's run preflight reports a protected Codex or Claude route that its
+installed services are still bringing up as **Starting**, with the code
+`workflow_installed_route_starting` and the cause
+`<starting state>:<observed cause>`. The state is read from what the check
+observed, never from elapsed time, and it clears by itself:
+
+| Starting state | Meaning |
+| --- | --- |
+| `codex_launcher_registry_starting` | The protected Codex launcher registry is not listening yet. |
+| `codex_host_attestation_pending` | The protected Codex runtime was prepared again and waits for its signed host attestation. |
+| `codex_host_attestation_renewing` | The Codex host attestation expired and is being renewed. |
+| `codex_host_reattesting_after_boot` | The Codex host attestation is from before the host restarted and is being made again. |
+| `codex_route_recomposing` | The Codex route is being composed again from its renewed host attestation. |
+| `claude_native_boot_publishing`, `claude_native_boot_renewing` | The Claude native service has not yet published, or not yet renewed, its signed boot. |
+| `claude_native_boot_changing` | The Claude native service changed its boot during the check. |
+| `claude_native_worker_rebinding` | The Claude native service is being bound to the restarted worker. |
+| `claude_worker_capabilities_pending`, `worker_capabilities_pending` | The restarted worker has not reported its current capabilities yet. The Source import row uses the second code. |
+
+Every other cause blocks the row, for example a composition failure, a missing
+managed Codex login, a refused signature, an image or worker identity mismatch
+or an unverifiable bootstrap.
+
+The managed Codex login row is **Ready** while the login's latest verification
+stands. Otherwise it names what a new verification waits for:
+
+| Code | Meaning |
+| --- | --- |
+| `codex_fresh_login_verification_required` | Nothing holds the account. The preflight starts one verification. |
+| `codex_login_verification_in_progress` | A verification of the login is running. |
+| `codex_run_login_verification_in_progress` | A run is verifying the login; the row shows "Verifying the managed Codex login…". |
+| `codex_login_sign_in_in_progress` | A sign-in is not finished. Finish it under **Integrations**. |
+| `codex_login_verification_after_account_turn` | A run turn holds the account. The verification can start when the turn ends. |
+| `codex_login_verification_after_sessions` | Running sessions hold the account. The verification can start when their turns end. |
+
+Source: `server/src/application/installedRouteStartup.ts` and
+`server/src/application/installedCodexWorkflowProfileReader.ts`.
 
 ## Claude subscription execution blockers
 

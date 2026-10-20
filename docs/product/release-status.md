@@ -40,7 +40,8 @@ refuses a smaller host before it installs anything, because every run reserves
 recommended. Below 16 GB the installer builds the protected agent images two at a time
 instead of four, and a host below the recommended size may hold only one run at
 a time. Allow 60 GB of free disk: the protected agent images need 20 GB of it,
-plus a build cache capped at 64 GB.
+plus a build cache capped at 64 GB. Runs need about 90 GB more on each worker
+host for [receiver storage](/docs/runtime-workers#receiver-storage).
 
 The supported coding agents are Codex (OpenAI) and Claude Code (Anthropic).
 Each can use an API key or a subscription sign-in. Every supported combination

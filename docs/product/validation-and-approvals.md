@@ -70,6 +70,22 @@ published:
 The workflow editor's Review stage and the task's run preflight state this
 requirement before you publish a workflow or start a run.
 
+## Secret scan
+
+Before publication, completion readiness scans the run's change for secrets
+with the organization's content policy. It reads every path in the final tree
+and the content of every file the run added or changed; content the base
+commit already held is not scanned again. A file fails the `secret_scan` gate
+only when the policy matches it. Long lines, deeply nested or very large JSON and
+minified bundles are scanned in overlapping windows instead of being refused.
+Content the scanner cannot inspect, for example text in an encoding it refuses,
+is reported as unavailable with a `completion_tree_content_<reason>` code and
+never passes.
+
+The captured change holds at most 8 MiB per added or changed file and 24 MiB of
+such content in total. A larger change cannot be captured and is refused with
+`capture_tree_export_blob_too_large` or `capture_tree_export_change_too_large`.
+
 ## Signed evidence
 
 The installation signs completion, evidence and review records with keys
