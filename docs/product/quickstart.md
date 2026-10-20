@@ -8,8 +8,8 @@ order: 20
 
 This page installs BranchRunner 1.0.0. Its installer, source archive and
 checksums are published together with the release notes. See
-[release status](/docs/release-status) for the configurations that were
-verified live.
+[release status](/docs/release-status) for the supported platforms and their
+release acceptance.
 
 You operate the installation yourself. BranchRunner provides no support, SLA,
 backup, retention or deletion service for self-hosted installations. You own
@@ -18,8 +18,9 @@ policies.
 
 You need:
 
-- a clean Ubuntu 24.04 or 26.04 LTS server on amd64 or arm64 with at least 8 GB
-  RAM, 2 CPU cores and 60 GB free disk (the images are built on the server).
+- a clean server on a supported platform (Ubuntu 24.04 LTS, Ubuntu 26.04 LTS
+  and Debian 13, on amd64) with at least 8 GB RAM, 2 CPU cores and 60 GB free
+  disk (the images are built on the server). arm64 is not supported in 1.0.0.
   16 GB RAM and 4 CPU cores are recommended. The installer refuses a smaller
   host before it installs anything. Below 16 GB it builds the protected agent
   images two at a time instead of four, and below the recommended size the
@@ -35,11 +36,12 @@ You need:
 - a person who can act as the human technical reviewer. Every run also needs a
   human technical review from a qualified person who did not write the change.
 
-The installer detects the Ubuntu release and architecture and stops on an
-unknown platform. It installs Docker, nginx, certificate renewal and firewall
-rules itself, runs PostgreSQL in a container, and builds the BranchRunner images
-on your server. It pulls only digest-pinned upstream base images such as
-Node.js, Ubuntu and PostgreSQL.
+The installer accepts only the three supported platforms and refuses every
+other one, including Ubuntu 22.04, Debian 12 and arm64, before it changes
+anything. It installs Docker, nginx, certificate renewal and firewall rules
+itself, runs PostgreSQL in a container, and builds the BranchRunner images on
+your server. It pulls only digest-pinned upstream base images such as Node.js,
+Ubuntu and PostgreSQL.
 
 ## Install the server
 

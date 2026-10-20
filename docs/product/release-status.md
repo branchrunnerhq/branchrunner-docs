@@ -17,15 +17,22 @@ not part of this release.
 
 ## Supported configurations
 
+BranchRunner 1.0.0 supports exactly three platforms: Ubuntu 24.04 LTS, Ubuntu
+26.04 LTS and Debian 13, on amd64 (x86_64).
+
 | Platform | Status |
 | --- | --- |
-| Ubuntu 26.04 LTS, amd64 | Release target: a complete run with a Codex subscription implementer and a Claude subscription reviewer, a Codex API-key run and a Claude API-key run are verified live before 1.0.0 is published |
-| Ubuntu 24.04 LTS, amd64 | Release target: a clean installation and a complete run are verified live before 1.0.0 is published |
-| Ubuntu 24.04 and 26.04 LTS, arm64 | Preview, not yet verified |
+| Ubuntu 26.04 LTS, amd64 | Supported. Release acceptance, recorded before 1.0.0 is published: a clean installation with the published installer, a complete run with a Codex subscription implementer and a Claude subscription reviewer, a Codex API-key run and a Claude API-key run |
+| Ubuntu 24.04 LTS, amd64 | Supported. Release acceptance, recorded before 1.0.0 is published: a clean installation with the published installer and a complete run |
+| Debian 13 (trixie), amd64 | Supported. Release acceptance, recorded before 1.0.0 is published: a clean installation with the published installer |
 
-Both installers accept only Ubuntu 24.04 and 26.04 LTS on amd64 or arm64 and
-refuse any other platform, including Ubuntu 22.04 and Debian, before anything
-is installed. More platforms are planned for later releases.
+Both installers accept only these three and refuse every other platform before
+anything is installed, with one message that names them. Refused platforms
+include Ubuntu 22.04 and interim Ubuntu releases, Debian 12 and other Debian
+releases, arm64 and every other architecture, Arch Linux, AlmaLinux and
+FreeBSD. arm64 is not supported in 1.0.0. Debian 12 is not supported because
+its AppArmor 3.0 parser cannot read the worker's AppArmor profile pack, which
+is written for AppArmor ABI 4.0. More platforms are planned for later releases.
 
 The server needs at least 8 GB RAM and 2 CPU cores; the server installer
 refuses a smaller host before it installs anything, because every run reserves
@@ -40,7 +47,7 @@ Each can use an API key or a subscription sign-in. Every supported combination
 that the table does not list as live-verified, such as a Claude subscription
 implementer, a worker on a separate host, or an OpenAI-compatible or Azure
 OpenAI target, is supported but not yet live-verified. A verified row on one
-Ubuntu version or architecture does not verify another. This page marks a row live-verified once its runs are recorded. Other coding agents
+platform does not verify another. This page marks a row live-verified once its runs are recorded. Other coding agents
 and model providers are not part of this release.
 
 ## What 1.0.0 includes
@@ -118,10 +125,12 @@ and model providers are not part of this release.
 
 ## Known limitations
 
-- **Live verification covers the listed rows only.** arm64 is a preview.
-  Workers on a separate host, OpenAI-compatible and Azure targets, concurrent
-  subscription sessions and publication cancellation are supported but not yet
-  live-verified.
+- **Live verification covers the listed rows only.** Workers on a separate
+  host, OpenAI-compatible and Azure targets, concurrent subscription sessions
+  and publication cancellation are supported but not yet live-verified.
+- **Three platforms, amd64 only.** arm64, Debian 12, Ubuntu 22.04 and every
+  other platform are not supported in 1.0.0; the installers refuse them before
+  anything is installed.
 - **Validation supports npm projects only.** It needs a `package-lock.json` and
   does not support npm workspaces. Other repositories get only the baseline
   repository-hygiene check, and completion names the missing evidence.

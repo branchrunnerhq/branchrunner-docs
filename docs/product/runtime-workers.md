@@ -24,9 +24,12 @@ check reports each missing item.
 
 ## Host requirements
 
-The host needs Linux with AppArmor enforcing, Docker Engine 24 or newer, at
-least 20 GiB of free disk and 100,000 free inodes, and a clock within 5 seconds
-of the control plane. Docker Desktop cannot be used.
+The host must run one of the supported platforms: Ubuntu 24.04 LTS, Ubuntu
+26.04 LTS and Debian 13, on amd64. The worker installer refuses every other
+platform, including arm64, before it changes anything. The host needs AppArmor
+enforcing, Docker Engine 24 or newer, at least 20 GiB of free disk and 100,000
+free inodes, and a clock within 5 seconds of the control plane. Docker Desktop
+cannot be used.
 
 ## Install the worker
 
